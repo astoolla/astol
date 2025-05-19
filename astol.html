@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيانات سائقي ومحطات وقود شركة الأسطول</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+        }
+        .table-container {
+            max-height: 60vh; /* Adjusted for summary */
+            overflow-y: auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        th, td {
+            padding: 0.75rem 1rem; /* Slightly reduced padding */
+            text-align: right;
+            border-bottom-width: 1px;
+            border-color: #e2e8f0;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #3b82f6;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        tr:hover {
+            background-color: #e0f2fe;
+        }
+        input[type="text"], input[type="date"], select, input[type="number"], input[type="search"] {
+            border: 1px solid #cbd5e1;
+            border-radius: 0.375rem;
+            padding: 0.625rem 0.875rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            width: 100%;
+            background-color: white;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, select:focus, input[type="number"]:focus, input[type="search"]:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            outline: none;
+        }
+        .btn {
+            padding: 0.625rem 1.25rem; /* Adjusted button padding */
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+            cursor: pointer;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+        }
+        .btn:active {
+            transform: translateY(1px);
+        }
+        .btn-primary {
+            background-color: #3b82f6; color: white;
+        }
+        .btn-primary:hover { background-color: #2563eb; }
+        .btn-danger {
+            background-color: #ef4444; color: white;
+        }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-success {
+            background-color: #22c55e; color: white;
+        }
+        .btn-success:hover { background-color: #16a34a; }
+        .btn-info {
+            background-color: #0ea5e9; color: white;
+        }
+        .btn-info:hover { background-color: #0284c7; }
+        .btn-warning {
+            background-color: #f59e0b; color: white;
+        }
+        .btn-warning:hover { background-color: #d97706; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjusted minmax */
+            gap: 1rem;
+        }
+        .table-responsive-wrapper { overflow-x: auto; }
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: white; padding: 1.5rem; border-radius: 0.5rem; /* Adjusted padding */
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            width: 90%; max-width: 600px; /* Adjusted max-width */
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; margin-bottom: 1rem; /* Adjusted padding/margin */
+        }
+        .modal-title { font-size: 1.5rem; font-weight: 700; color: #3b82f6; } /* Adjusted font size */
+        .modal-close-btn {
+            background: none; border: none; font-size: 1.5rem; cursor: pointer;
+            color: #94a3b8; transition: color 0.2s ease;
+        }
+        .modal-close-btn:hover { color: #64748b; }
+        .icon-btn {
+            background: none; border: none; cursor: pointer; font-size: 1.1rem; /* Adjusted icon size */
+            margin: 0 0.2rem; padding: 0.2rem; color: #64748b;
+            transition: color 0.2s ease, transform 0.1s ease;
+        }
+        .icon-btn:hover { transform: scale(1.1); }
+        .icon-btn.text-blue-500:hover { color: #2563eb !important; }
+        .icon-btn.text-red-500:hover { color: #dc2626 !important; }
+        .icon-btn.text-green-500:hover { color: #16a34a !important; }
+        .icon-btn.text-purple-500:hover { color: #7c3aed !important; }
+        .icon-btn.text-yellow-500:hover { color: #d97706 !important; }
+        .icon-btn.text-teal-500:hover { color: #0d9488 !important; }
+        .icon-btn.whatsapp:hover { color: #25D366 !important; }
+        .icon-btn.phone:hover { color: #3b82f6 !important; }
+
+        #messageBox {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 0.75rem 1.25rem; border-radius: 0.375rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 2000; display: none; font-size: 0.9rem; font-weight: 600; /* Adjusted font size */
+            align-items: center;
+        }
+        #messageBox.success { background-color: #22c55e; color: white; }
+        #messageBox.error { background-color: #ef4444; color: white; }
+        #messageBox.info { background-color: #3b82f6; color: white; }
+        #messageCloseBtn {
+            background: none; border: none; color: inherit; font-size: 1.25rem; /* Adjusted size */
+            margin-right: -0.5rem; margin-left: 0.75rem; cursor: pointer; line-height: 1;
+        }
+        #monthlyReportContentArea, #driverReportContentArea, #stationReportContent, #periodicReportContentArea, #stationsForSelectionContainer {
+            max-height: 55vh; /* Adjusted for summary */
+            overflow-y: auto; border: 1px solid #e2e8f0;
+            border-radius: 0.375rem; padding: 0.75rem; margin-top: 0.75rem; /* Adjusted padding/margin */
+        }
+        #stationsForSelectionContainer {
+             max-height: 180px; /* Adjusted */
+             padding: 0.5rem;
+             border: 1px solid #cbd5e1;
+             background-color: #f9fafb;
+        }
+        #stationsForSelectionContainer ul { list-style: none; padding: 0; margin: 0; }
+        #stationsForSelectionContainer li {
+            padding: 0.4rem 0.6rem; /* Adjusted */
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        #stationsForSelectionContainer li:last-child { border-bottom: none; }
+        #stationsForSelectionContainer li:hover { background-color: #e0f2fe; }
+        #stationsForSelectionContainer li.selected { background-color: #bfdbfe; font-weight: 600; color: #1e40af;}
+
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.25rem; /* Adjusted padding */
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 1.625rem; /* Adjusted font size */
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 1.25rem; /* Adjusted margin */
+            padding-bottom: 0.625rem; /* Adjusted padding */
+            border-bottom: 2px solid #3b82f6;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; } /* Adjusted size */
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+
+        .status-dot {
+            height: 12px; width: 12px; /* Adjusted size */
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 3px rgba(0,0,0,0.2); /* Adjusted shadow */
+            vertical-align: middle;
+            margin-left: 0.5rem; /* Added margin */
+        }
+        .status-green { background-color: #22c55e; }
+        .status-yellow { background-color: #f59e0b; }
+        .status-red { background-color: #ef4444; }
+
+        /* New styles for status summary */
+        #statusSummarySection {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+            gap: 1rem;
+        }
+        .status-summary-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            min-width: 220px; /* Ensure items don't get too squished */
+        }
+        .status-summary-item .status-dot {
+            margin-right: 0.5rem; /* Space between dot and text */
+            margin-left: 0;
+        }
+        .status-summary-item span {
+            font-weight: 600;
+            color: #475569;
+        }
+        .status-summary-item .count {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            color: #1e3a8a;
+        }
+        .status-summary-item .btn-print-status {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+            margin-right: auto; /* Pushes button to the right */
+            background-color: #60a5fa; /* Light blue */
+            color: white;
+        }
+        .status-summary-item .btn-print-status:hover {
+            background-color: #3b82f6;
+        }
+
+    </style>
+</head>
+<body class="text-slate-700">
+    <div class="container mx-auto p-4 md:p-6 lg:p-8">
+        <header class="mb-8 text-center"> <h1 class="text-3xl md:text-4xl font-bold text-blue-700">نظام إدارة أسطول الشركة</h1> </header>
+
+        <div id="messageBox">
+            <span id="messageText"></span>
+            <button id="messageCloseBtn" onclick="hideMessage()">&times;</button>
+        </div>
+
+        <section id="statusSummarySection">
+            <div class="status-summary-item">
+                <span class="status-dot status-green"></span>
+                <span>طلبية اليوم:</span>
+                <span id="statusCountGreen" class="count mr-2">0</span>
+                <button class="btn btn-print-status" onclick="printDriverStatusReport('green')"><i class="fas fa-print mr-1"></i> طباعة</button>
+            </div>
+            <div class="status-summary-item">
+                <span class="status-dot status-yellow"></span>
+                <span>خلال 7 أيام:</span>
+                <span id="statusCountYellow" class="count mr-2">0</span>
+                <button class="btn btn-print-status" onclick="printDriverStatusReport('yellow')"><i class="fas fa-print mr-1"></i> طباعة</button>
+            </div>
+            <div class="status-summary-item">
+                <span class="status-dot status-red"></span>
+                <span>أكثر من 7 أيام/لا يوجد:</span>
+                <span id="statusCountRed" class="count mr-2">0</span>
+                <button class="btn btn-print-status" onclick="printDriverStatusReport('red')"><i class="fas fa-print mr-1"></i> طباعة</button>
+            </div>
+        </section>
+
+        <section id="addStationSection" class="mb-8 section-card">
+            <h2 class="section-title">إضافة محطة وقود جديدة</h2>
+            <div class="form-grid mb-6">
+                <input type="text" id="newStationName" placeholder="اسم المحطة (إلزامي)" class="p-3">
+                <input type="text" id="newStationNumber" placeholder="رقم المحطة (اختياري)" class="p-3">
+                <select id="newStationCompany" class="p-3">
+                    <option value="">اختر الشركة (إلزامي)</option>
+                </select>
+                <input type="text" id="newStationAddress" placeholder="عنوان المحطة (اختياري)" class="p-3">
+            </div>
+            <button onclick="addFuelStation()" class="btn btn-primary w-full sm:w-auto"><i class="fas fa-plus-circle mr-2"></i>إضافة المحطة</button>
+        </section>
+
+        <section id="stationsListSection" class="mb-8 section-card">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h2 class="section-title !mb-0 !pb-0 !border-0">قائمة محطات الوقود</h2>
+                <input type="text" id="searchStationInput" onkeyup="searchStationsTable()" placeholder="ابحث عن محطة..." class="p-3 border rounded-md w-full sm:w-auto md:w-1/3">
+            </div>
+            <div class="table-responsive-wrapper">
+                <div class="table-container">
+                    <table id="fuelStationsTable" class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th>اسم المحطة</th>
+                                <th>رقم المحطة</th>
+                                <th>الشركة</th>
+                                <th>العنوان</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fuelStationsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="monthlyReportActionsSection" class="mb-8 p-6 section-card text-center">
+            <h2 class="section-title">الكشوفات الدورية للمحطات</h2>
+            <button onclick="openMonthlyReportSettingsModal()" class="btn btn-info"><i class="fas fa-file-invoice-dollar mr-2"></i>إنشاء كشف دوري للمحطات</button>
+        </section>
+
+        <section class="mb-8 section-card">
+            <h2 class="section-title">إضافة سائق جديد</h2>
+            <div class="form-grid mb-6">
+                <input type="text" id="newRt" placeholder="رت (إلزامي)" class="p-3">
+                <input type="text" id="newPermitNum" placeholder="رقم التصريح (إلزامي)" class="p-3">
+                <input type="text" id="newDriverName" placeholder="اسم السائق (إلزامي)" class="p-3">
+                <input type="text" id="newPhoneNumber" placeholder="رقم الهاتف (مثال: 0912345678)" class="p-3">
+                <input type="text" id="newTruckNum" placeholder="رقم الشاحنة (إلزامي)" class="p-3">
+                <input type="text" id="newTruckType" placeholder="نوع الشاحنة" class="p-3">
+                <input type="text" id="newTruckColor" placeholder="لون الشاحنة" class="p-3">
+                <input type="text" id="newProductType" placeholder="نوع المنتوج" class="p-3">
+                <input type="text" id="newStatus" placeholder="الحالة" class="p-3">
+                <input type="text" id="newIssueDate" placeholder="تاريخ الإصدار (يوم-شهر-سنة)" class="p-3">
+                <input type="text" id="newExpiryDate" placeholder="تاريخ الانتهاء (يوم-شهر-سنة)" class="p-3">
+                <input type="text" id="newTrailerNum" placeholder="رقم المقطورة" class="p-3">
+            </div>
+            <button onclick="addDriver()" class="btn btn-primary w-full sm:w-auto"><i class="fas fa-user-plus mr-2"></i>إضافة السائق</button>
+        </section>
+
+        <section class="section-card">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h2 class="section-title !mb-0 !pb-0 !border-0">قائمة السائقين</h2>
+                <input type="text" id="searchInput" onkeyup="searchDriversTable()" placeholder="ابحث عن سائق..." class="p-3 border rounded-md w-full sm:w-auto md:w-1/3">
+            </div>
+            <div class="table-responsive-wrapper">
+                <div class="table-container">
+                    <table id="driversTable" class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th>حالة الطلبية</th>
+                                <th>رت</th>
+                                <th>رقم التصريح</th>
+                                <th>اسم السائق</th>
+                                <th>رقم الهاتف</th>
+                                <th>رقم الشاحنة</th>
+                                <th>نوع الشاحنة</th>
+                                <th>لون الشاحنة</th>
+                                <th>نوع المنتوج</th>
+                                <th>الحالة</th>
+                                <th>تاريخ الاصدار</th>
+                                <th>تاريخ الانتهاء</th>
+                                <th>رقم المقطورة</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driversTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="editStationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">تعديل بيانات المحطة</h3>
+                <button class="modal-close-btn" onclick="closeModal('editStationModal')">&times;</button>
+            </div>
+            <input type="hidden" id="editStationId">
+            <div class="form-grid mb-6">
+                <input type="text" id="editStationName" placeholder="اسم المحطة (إلزامي)" class="p-3">
+                <input type="text" id="editStationNumber" placeholder="رقم المحطة (اختياري)" class="p-3">
+                <select id="editStationCompany" class="p-3">
+                    <option value="">اختر الشركة (إلزامي)</option>
+                </select>
+                <input type="text" id="editStationAddress" placeholder="عنوان المحطة (اختياري)" class="p-3">
+            </div>
+            <button onclick="saveStationChanges()" class="btn btn-primary w-full"><i class="fas fa-save mr-2"></i>حفظ التعديلات</button>
+        </div>
+    </div>
+
+    <div id="editDriverModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">تعديل بيانات السائق</h3>
+                <button class="modal-close-btn" onclick="closeModal('editDriverModal')">&times;</button>
+            </div>
+            <input type="hidden" id="editDriverId">
+            <div class="form-grid mb-6">
+                <input type="text" id="editRt" placeholder="رت" class="p-3">
+                <input type="text" id="editPermitNum" placeholder="رقم التصريح" class="p-3">
+                <input type="text" id="editDriverName" placeholder="اسم السائق" class="p-3">
+                <input type="text" id="editPhoneNumber" placeholder="رقم الهاتف (مثال: 0912345678)" class="p-3">
+                <input type="text" id="editTruckNum" placeholder="رقم الشاحنة" class="p-3">
+                <input type="text" id="editTruckType" placeholder="نوع الشاحنة" class="p-3">
+                <input type="text" id="editTruckColor" placeholder="لون الشاحنة" class="p-3">
+                <input type="text" id="editProductType" placeholder="نوع المنتوج" class="p-3">
+                <input type="text" id="editStatus" placeholder="الحالة" class="p-3">
+                <input type="text" id="editIssueDate" placeholder="تاريخ الإصدار (يوم-شهر-سنة)" class="p-3">
+                <input type="text" id="editExpiryDate" placeholder="تاريخ الانتهاء (يوم-شهر-سنة)" class="p-3">
+                <input type="text" id="editTrailerNum" placeholder="رقم المقطورة" class="p-3">
+            </div>
+            <button onclick="saveDriverChanges()" class="btn btn-primary w-full"><i class="fas fa-save mr-2"></i>حفظ التعديلات</button>
+        </div>
+    </div>
+
+    <div id="logDeliveryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">تسجيل توصيل لمحطة</h3>
+                <button class="modal-close-btn" onclick="closeModal('logDeliveryModal')">&times;</button>
+            </div>
+            <input type="hidden" id="logDeliveryDriverId">
+            <div class="mb-4">
+                <label for="logDeliveryDriverNameDisplay" class="block text-sm font-medium text-slate-700 mb-1">اسم السائق:</label>
+                <input type="text" id="logDeliveryDriverNameDisplay" class="p-3 border rounded-md bg-slate-100 w-full" readonly>
+            </div>
+            <div class="mb-4">
+                <label for="filterCompanyForDelivery" class="block text-sm font-medium text-slate-700 mb-1">1. اختر الشركة:</label>
+                <select id="filterCompanyForDelivery" class="p-3 border rounded-md w-full" onchange="renderStationsForSelection()">
+                    </select>
+            </div>
+            <div class="mb-4">
+                <label for="searchStationForSelectionInput" class="block text-sm font-medium text-slate-700 mb-1">2. ابحث واختر المحطة:</label>
+                <input type="search" id="searchStationForSelectionInput" placeholder="اكتب اسم أو رقم المحطة..." class="p-3 border rounded-md w-full mb-2" onkeyup="renderStationsForSelection()">
+                <div id="stationsForSelectionContainer">
+                    <p class="text-slate-500 text-center py-2">الرجاء اختيار شركة أو ابدأ البحث لعرض المحطات.</p>
+                </div>
+            </div>
+            <input type="hidden" id="selectedStationIdForDelivery">
+
+             <div class="mb-4">
+                <label for="deliveryNotificationNumber" class="block text-sm font-medium text-slate-700 mb-1">رقم الإشعار (اختياري):</label>
+                <input type="text" id="deliveryNotificationNumber" placeholder="أدخل رقم الإشعار" class="p-3 border rounded-md w-full">
+            </div>
+            <div class="mb-4">
+                <label for="deliveryDate" class="block text-sm font-medium text-slate-700 mb-1">تاريخ الطلبية (التوصيل):</label>
+                <input type="date" id="deliveryDate" class="p-3 border rounded-md w-full">
+            </div>
+            <div class="mb-4">
+                <label for="deliveryFuelType" class="block text-sm font-medium text-slate-700 mb-1">نوع الوقود:</label>
+                <select id="deliveryFuelType" class="p-3 border rounded-md w-full">
+                    <option value="بنزين">بنزين</option>
+                    <option value="ديزل">ديزل</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="deliveryFuelQuantity" class="block text-sm font-medium text-slate-700 mb-1">الحمولة (لتر):</label>
+                <select id="deliveryFuelQuantity" class="p-3 border rounded-md w-full">
+                    <option value="40000">40,000 لتر</option>
+                    <option value="50000">50,000 لتر</option>
+                    <option value="custom">كمية مخصصة</option>
+                </select>
+                <input type="number" id="customFuelQuantity" placeholder="أدخل الكمية المخصصة" class="p-3 border rounded-md w-full mt-2 hidden">
+            </div>
+            <button onclick="saveDeliveryLog()" class="btn btn-success w-full"><i class="fas fa-truck-loading mr-2"></i>تسجيل التوصيل</button>
+        </div>
+    </div>
+
+    <div id="editDeliveryLogModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">تعديل بيانات التوصيل</h3>
+                <button class="modal-close-btn" onclick="closeModal('editDeliveryLogModal')">&times;</button>
+            </div>
+            <input type="hidden" id="editDeliveryLogId">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">اسم السائق:</label>
+                <input type="text" id="editDeliveryLogDriverNameDisplay" class="p-3 border rounded-md bg-slate-100 w-full" readonly>
+            </div>
+             <div class="mb-4">
+                <label for="editSelectStationForDelivery" class="block text-sm font-medium text-slate-700 mb-1">اختر المحطة:</label>
+                <select id="editSelectStationForDelivery" class="p-3 border rounded-md w-full"></select>
+            </div>
+            <div class="mb-4">
+                <label for="editDeliveryNotificationNumber" class="block text-sm font-medium text-slate-700 mb-1">رقم الإشعار (اختياري):</label>
+                <input type="text" id="editDeliveryNotificationNumber" placeholder="أدخل رقم الإشعار" class="p-3 border rounded-md w-full">
+            </div>
+            <div class="mb-4">
+                <label for="editDeliveryDate" class="block text-sm font-medium text-slate-700 mb-1">تاريخ التوصيل:</label>
+                <input type="date" id="editDeliveryDate" class="p-3 border rounded-md w-full">
+            </div>
+            <div class="mb-4">
+                <label for="editDeliveryFuelType" class="block text-sm font-medium text-slate-700 mb-1">نوع الوقود:</label>
+                <select id="editDeliveryFuelType" class="p-3 border rounded-md w-full">
+                    <option value="بنزين">بنزين</option>
+                    <option value="ديزل">ديزل</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="editDeliveryFuelQuantity" class="block text-sm font-medium text-slate-700 mb-1">كمية الوقود (لتر):</label>
+                 <select id="editDeliveryFuelQuantity" class="p-3 border rounded-md w-full">
+                    <option value="40000">40,000 لتر</option>
+                    <option value="50000">50,000 لتر</option>
+                    <option value="custom">كمية مخصصة</option>
+                </select>
+                <input type="number" id="editCustomFuelQuantity" placeholder="أدخل الكمية المخصصة" class="p-3 border rounded-md w-full mt-2 hidden">
+            </div>
+            <button onclick="saveDeliveryLogChanges()" class="btn btn-primary w-full"><i class="fas fa-save mr-2"></i>حفظ تعديلات التوصيل</button>
+        </div>
+    </div>
+
+    <div id="stationReportModal" class="modal">
+        <div class="modal-content" style="max-width: 950px;">
+            <div class="modal-header">
+                <h3 id="stationReportModalTitle" class="modal-title">كشف محطة</h3>
+                <button class="modal-close-btn" onclick="closeModal('stationReportModal')">&times;</button>
+            </div>
+            <input type="hidden" id="currentStationReportId">
+            <div id="stationReportContent" class="table-responsive-wrapper">
+                <div class="table-container" style="max-height: 60vh;">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th>اسم السائق</th>
+                                <th>رقم هاتف السائق</th>
+                                <th>رقم الشاحنة</th>
+                                <th>رقم المقطورة</th>
+                                <th>تاريخ الطلبية</th>
+                                <th>رقم الإشعار</th>
+                                <th>نوع الوقود</th>
+                                <th>الحمولة (لتر)</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stationReportTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="printStationReportBtn" class="btn btn-primary"><i class="fas fa-print mr-2"></i>طباعة كشف المحطة</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="monthlyReportSettingsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">إعدادات الكشف الدوري للمحطات</h3>
+                <button class="modal-close-btn" onclick="closeModal('monthlyReportSettingsModal')">&times;</button>
+            </div>
+            <div class="form-grid mb-4">
+                <div>
+                    <label for="reportType" class="block text-sm font-medium text-slate-700 mb-1">نوع التقرير:</label>
+                    <select id="reportType" class="p-3 border rounded-md w-full" onchange="toggleWeekSelector()">
+                        <option value="monthly" selected>شهري</option>
+                        <option value="weekly">اسبوعي</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="reportMonth" class="block text-sm font-medium text-slate-700 mb-1">الشهر:</label>
+                    <select id="reportMonth" class="p-3 border rounded-md w-full"></select>
+                </div>
+                <div>
+                    <label for="reportYear" class="block text-sm font-medium text-slate-700 mb-1">السنة:</label>
+                    <select id="reportYear" class="p-3 border rounded-md w-full"></select>
+                </div>
+                <div id="weekSelectorDiv" class="hidden"> <label for="reportWeek" class="block text-sm font-medium text-slate-700 mb-1">الأسبوع:</label>
+                    <select id="reportWeek" class="p-3 border rounded-md w-full"></select>
+                </div>
+                <div>
+                    <label for="reportCompanyFilter" class="block text-sm font-medium text-slate-700 mb-1">تصفية حسب الشركة (اختياري):</label>
+                    <select id="reportCompanyFilter" class="p-3 border rounded-md w-full">
+                        <option value="all">جميع الشركات</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                <button onclick="generateAndDisplayPeriodicReport()" class="btn btn-success w-full sm:w-auto"><i class="fas fa-cogs mr-2"></i>إنشاء الكشف</button>
+                <button id="printPeriodicReportBtn" onclick="printPeriodicReport()" class="btn btn-primary w-full sm:w-auto" disabled><i class="fas fa-print mr-2"></i>طباعة الكشف</button>
+            </div>
+            <div id="periodicReportContentArea" class="mt-6"></div> </div>
+    </div>
+
+    <div id="driverReportModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 id="driverReportModalTitle" class="modal-title">كشف توصيلات السائق</h3>
+                <button class="modal-close-btn" onclick="closeModal('driverReportModal')">&times;</button>
+            </div>
+            <input type="hidden" id="currentDriverReportId">
+            <div id="driverInfoArea" class="mb-4 p-4 bg-slate-100 rounded-md text-sm shadow"></div>
+            <div id="driverReportContentArea" class="table-responsive-wrapper">
+                </div>
+            <div class="mt-6 flex justify-end">
+                <button id="printDriverReportBtn" class="btn btn-primary"><i class="fas fa-print mr-2"></i>طباعة كشف السائق</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- START: Utility Function for Unique IDs ---
+        function generateUniqueId() {
+            return Date.now().toString(36) + Math.random().toString(36).substring(2);
+        }
+        // --- END: Utility Function for Unique IDs ---
+
+        // --- START: Station Companies ---
+        const STATION_COMPANIES = {
+            SHARARA: 'الشرارة',
+            HIGHWAYS: 'الطرق السريعة',
+            BREGA: 'البريقة',
+            RAHILA: 'الراحلة',
+            ALEMDAR: 'المدار الجديد',
+            LIBYA_OIL: 'ليبيا للنفط',
+            SPECIAL_ORDERS: 'طلبيات خاصة',
+            OTHER: 'أخرى'
+        };
+        // --- END: Station Companies ---
+
+        // --- START: Initial Data ---
+        // تم استبدال القائمة لتشمل جميع السائقين من driversData
+const driversData = [
+    ["1", "701110", "حافظ عبد الكريم موسى", "12-997", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "13-08-2024", "31-12-2024", "8-13342", ""],
+    ["2", "700549", "موسى عبد الكريم حمد", "12-858", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "16-03-2025", "30-07-2025", "12-878", ""],
+    ["3", "701048", "احمد علي سليمان", "8-8019", "داف", "ازرق", "بنزين 95", "في الخدمة", "11-01-2025", "19-05-2025", "5-18856", ""],
+    ["4", "700404", "عادل تركي مجيد", "52-87", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "05-01-2025", "01-07-2025", "3-5885", ""],
+    ["5", "700757", "معتز عبد العزيز صالح", "52-86", "داف", "ابيض", "بنزين 95", "في الخدمة", "19-12-2024", "11-05-2025", "52-96", ""],
+    ["6", "701339", "ابراهيم مفتاح عامر", "8-7929", "داف", "اخضر", "بنزين 95", "في الخدمة", "08-12-2024", "26-05-2025", "8-8612", ""],
+    ["7", "700267", "محمود رمضان خليفة", "5-8969", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "18-03-2025", "01-09-2025", "5-34369", ""],
+    ["8", "700503", "محمد آدم عبد الكريم", "8-5439", "داف", "ابيض + اخضر", "بنزين 95", "في الخدمة", "03-05-2025", "30-07-2025", "8-8909", ""],
+    ["9", "700839", "يونس صالح يونس", "8-13105", "ايفكو", "ابيض", "بنزين 95", "في الخدمة", "14-04-2025", "08-10-2025", "8-13584", ""],
+    ["10", "700792", "جمعه مفتاح بوبكر", "52-12", "داف", "اصفر", "بنزين 95", "في الخدمة", "13-04-2025", "08-10-2025", "8-4380", ""],
+    ["11", "700266", "عطيه فضل الله سليمان", "8-7791", "ايفكو", "ابيض", "بنزين 95", "في الخدمة", "13-03-2025", "01-07-2025", "5-27668", ""],
+    ["12", "700236", "خالد معزوق امبارك", "12-828", "ايفكو", "ازرق", "بنزين 95", "في الخدمة", "04-02-2025", "26-07-2025", "5-33276", ""],
+    ["13", "700966", "اكرم سعيد فتح الله", "5-35121", "ايفكو", "برتقالي", "بنزين 95", "في الخدمة", "14-01-2025", "11-06-2025", "8-7343", ""],
+    ["14", "700372", "اسامه دخيل عبد السلام", "30-1419", "ايفكو", "ابيض", "بنزين 95", "في الخدمة", "29-04-2025", "28-10-2025", "8-9418", ""],
+    ["15", "700380", "بوبكر عبد الله حمودة", "5-48802", "افيكو", "احمر", "بنزين 95", "في الخدمة", "23-02-2025", "29-07-2025", "5-40133", ""],
+    ["16", "700562", "امحمد سالم الكوشي", "8-7626", "ايفكو", "ابيض", "بنزين 95", "في الخدمة", "11-12-2024", "20-05-2025", "36-488", ""],
+    ["17", "701020", "احمد مصطفى عقيله", "5-38146", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "02-03-2025", "25-05-2025", "5-13818", ""],
+    ["18", "700047", "حاتم فرج ونيس محمد", "30-2195", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "26-11-2024", "01-04-2025", "8-10211", ""],
+    ["19", "700368", "محمد عبد الحفيظ مسعود اجويده", "77-23", "افيكو", "احمر", "بنزين 95", "في الخدمة", "04-02-2025", "26-07-2025", "5-32199", ""],
+    ["20", "701038", "ابوبكر سعد ابراهيم", "8-8734", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "24-02-2025", "27-07-2025", "3-5497", ""],
+    ["21", "700881", "خير الله عبد الهادي خير الله", "5-10767", "افيكو", "ازرق", "بنزين 95", "في الخدمة", "27-11-2024", "10-05-2025", "30-2503", ""],
+    ["22", "701604", "اسامه محمد جابر", "66-84", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "22-01-2025", "10-04-2025", "30-4094", ""],
+    ["23", "700940", "زایدان عبد الكريم حسن", "8-13842", "افيكو", "رصاصی", "بنزين 95", "في الخدمة", "05-02-2025", "07-05-2025", "8-10046", ""],
+    ["24", "700373", "محمد فضل الله سليمان", "8-13434", "داف", "ازرق", "بنزين 95", "في الخدمة", "05-03-2025", "24-05-2025", "8-13066", ""],
+    ["25", "700343", "احمد عبد الهادي احمد", "5-11898", "افيكو", "اخضر", "بنزين 95", "في الخدمة", "16-10-2024", "13-11-2024", "8-10148", ""],
+    ["26", "701071", "مهدي محمد مفتاح", "12-575", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "05-09-2024", "02-03-2025", "8-9255", ""],
+    ["27", "700344", "عبد السميع صالح احمد", "30-1083", "افيكو", "ابيض", "بنزين 95", "في الخدمة", "10-02-2025", "23-04-2025", "8-9939", ""],
+    ["28", "700308", "رمضان ابو لطبعه حمد محمد", "8-7900", "افكو", "ابيض", "بنزين 95", "في الخدمة", "01-05-2025", "13-10-2025", "8-9565", ""],
+    ["29", "700691", "حامد موسى محمد علی", "8-8702", "افكو", "ابيض", "بنزين 95", "في الخدمة", "09-04-2025", "30-07-2025", "8-9024", ""],
+    ["30", "701046", "سند سالم سعد", "8-7606", "afico", "ازرق", "بنزين 95", "في الخدمة", "29-04-2025", "10-10-2025", "14-1128", ""],
+    ["31", "700328", "احمد حسين عبد الرازق", "8-8585", "افكو", "ازرق", "بنزين 95", "في الخدمة", "09-04-2025", "08-10-2025", "60-94", ""],
+    ["32", "700244", "عبد الله رمضان على الجروشي", "8-12942", "afico", "اخضر", "بنزين 95", "في الخدمة", "16-04-2025", "27-07-2025", "23-8-2819", ""],
+    ["33", "700508", "محمد اشعیب محمد", "46-36", "afico", "ازرق", "بنزين 95", "في الخدمة", "18-01-2025", "26-05-2025", "14-1251", ""],
+    ["34", "700287", "اجويلي فتحي اجويلي", "8-12810", "afico", "ابيض", "بنزين 95", "في الخدمة", "10-11-2024", "01-05-2025", "5-20683", ""],
+    ["35", "700346", "عبد الحميد مفتاح عبد الحميد", "30-980", "داف", "ابيض", "بنزين 95", "في الخدمة", "17-11-2024", "01-04-2025", "5-18967", ""],
+    ["36", "700442", "محمد السنوسي فضل الله", "8-7616", "afico", "ابيض", "بنزين 95", "في الخدمة", "09-04-2025", "08-10-2025", "3-5655", ""],
+    ["37", "700395", "مختار ادريس مختار", "8-8792", "afico", "رصاصی", "بنزين 95", "في الخدمة", "19-04-2025", "30-04-2025", "8-10224", ""],
+    ["38", "701055", "صلاح محمد الزروق", "5-39632", "afico", "احمر", "بنزين 95", "في الخدمة", "17-02-2025", "30-07-2025", "5-39667", ""],
+    ["39", "700091", "محمد بالقاسم سالم", "8-9116", "داف", "ابيض", "بنزين 95", "في الخدمة", "05-04-2025", "30-05-2025", "25-18254", ""],
+    ["40", "700094", "سليمان محمد علي", "5-17461", "afico", "ابيض", "بنزين 95", "في الخدمة", "30-11-2024", "26-05-2025", "5-24917", ""],
+    ["41", "700096", "محمد حمد صالح", "8-9398", "داف", "احمر", "بنزين 95", "في الخدمة", "20-11-2024", "01-04-2025", "5-35961", ""],
+    ["42", "700100", "فرج ميلاد فليفل", "8-12956", "afico", "ازرق", "بنزين 95", "في الخدمة", "08-04-2025", "27-05-2025", "25-15014", ""],
+    ["43", "700103", "صالح عبد السلام محمد", "18-332", "afico", "ابيض", "بنزين 95", "في الخدمة", "25-02-2025", "29-06-2025", "8-13573", ""],
+    ["44", "700151", "حماد ناصف بوبكر", "14-1527", "afico", "ازرق", "بنزين 95", "في الخدمة", "11-06-2025", "07-01-2025", "14-981", ""],
+    ["45", "700187", "حلمي عوض محمد", "8-3937", "afico", "احمر", "بنزين 95", "في الخدمة", "30-10-2025", "03-05-2025", "30-1337", ""],
+    ["46", "700209", "المهدي عيسى المهدي", "8-9511", "afico", "ابيض", "بنزين 95", "في الخدمة", "20-05-2025", "29-12-2024", "3-6372", ""],
+    ["47", "700318", "محمد حسين سعد", "8-13576", "afico", "اصفر", "بنزين 95", "في الخدمة", "09-01-2025", "05-05-2025", "8-13769", ""],
+    ["48", "700588", "عادل عبد الفتاح عبد الله", "6-1132", "afico", "ازرق", "بنزين 95", "في الخدمة", "02-09-2025", "07-05-2025", "8-10436", ""],
+    ["49", "700627", "حافظ عبد الكريم موسي", "30-1112", "afico", "ابيض", "بنزين 95", "في الخدمة", "27-04-2025", "09-07-2025", "8-10986", ""],
+    ["50", "700649", "حسام فتحي ادريس", "30-2083", "afico", "ابيض", "بنزين 95", "في الخدمة", "23-07-2024", "11-12-2024", "30-1747", ""],
+    ["51", "800232", "سعد عبد الفتاح عثمان", "2-602", "afico", "ابيض", "بنزين 95", "في الخدمة", "12-07-2025", "04-05-2025", "14-1266", ""],
+    ["52", "700701", "عبد الغني محمد محمد", "9983", "afico", "ابيض", "بنزين 95", "في الخدمة", "01-04-2025", "22-10-2024", "14-1940", ""],
+    ["53", "700989", "علي محمد السنوسي", "30-1536", "afico", "ابيض", "بنزين 95", "في الخدمة", "26-07-2025", "18-02-2025", "5-39512", ""],
+    ["54", "700710", "مبارك فرج امحمد", "8-6622", "داف", "ابيض", "بنزين 95", "في الخدمة", "04-11-2024", "01-04-2025", "8-7772", ""],
+    ["55", "700760", "حمزه ادريس حمد", "8-8158", "afico", "اسود", "بنزين 95", "في الخدمة", "02-03-2025", "17-11-2024", "14-638", ""],
+    ["56", "700846", "خالد صالح خالد", "8-10116", "afico", "ازرق", "بنزين 95", "في الخدمة", "13-04-2025", "10-10-2025", "14-1070", ""],
+    ["57", "700847", "مصطفى بالعيد يوسف", "تم ******* التسليم", "afico", "احمر", "بنزين 95", "في الخدمة", "05-01-2025", "20-03-2025", "8-8986", ""],
+    ["58", "701003", "محمد حسين محمد", "8-14781", "afico", "ابيض", "بنزين 95", "في الخدمة", "29-04-2025", "01-06-2025", "8-9154", ""],
+    ["59", "701023", "عبد الناصر محمد الجيلاني", "8-12073", "afico", "ابيض", "بنزين 95", "في الخدمة", "06-04-2025", "30-07-2025", "8-12027", ""],
+    ["60", "701111", "صالح يوسف صالح", "8-13569", "afico", "ابيض", "بنزين 95", "في الخدمة", "12-04-2025", "08-10-2025", "30-1891", ""],
+    ["61", "701112", "اجويلي موسي اجويلي", "8-9308", "afico", "ابيض", "بنزين 95", "في الخدمة", "27-11-2024", "25-05-2025", "5-36937", ""],
+    ["62", "701114", "علي عبد المجيد حمد", "36-240", "afico", "ازرق", "بنزين 95", "في الخدمة", "11-12-2024", "30-05-2025", "14-2101", ""],
+    ["63", "701157", "مفتاح حمد صالح", "8-12194", "داف", "اخضر ابيض", "بنزين 95", "", "25-02-2025", "22-04-2025", "30-2915", ""],
+    ["64", "701181", "عمر فرج علي محمد", "30-751", "afico", "ابيض", "بنزين 95", "في الخدمة", "05-05-2025", "30-10-2025", "14-1735", ""],
+    ["65", "701599", "سالم صالح علي محمد", "5-44009", "afico", "ابيض", "بنزين 95", "في الخدمة", "06-01-2025", "05-07-2025", "14-2200", ""],
+    ["66", "701284", "بالعيد يوسف مفتاح", "8-2125", "داف", "احمر + ابيض ازرق", "بنزين 95", "في الخدمة", "07-01-2025", "14-05-2025", "8-12219", ""],
+    ["67", "701288", "عبد الله عبد القادر عبد الرحيم", "6-909", "afico", "ابيض", "بنزين 95", "في الخدمة", "01-03-2025", "30-07-2025", "25-16978", ""],
+    ["68", "701296", "خالد جاب الله عبيد", "5-40049", "afico", "احمر", "بنزين 95", "في الخدمة", "02-03-2025", "19-05-2025", "25-14681", ""],
+    ["69", "701321", "قریره صلاح محمد الورفلي", "30-917", "داف", "احمر", "بنزين 95", "في الخدمة", "27-03-2025", "04-06-2025", "8-7603", ""],
+    ["70", "701323", "حسن سالم حمد", "5-49014", "afico", "ابيض", "بنزين 95", "", "13-04-2025", "21-08-2025", "5-31285", ""],
+    ["71", "701327", "عادل على قضوار السهولي", "8-12380", "afico", "احمر", "بنزين 95", "", "15-12-2024", "01-04-2025", "8-8939", ""],
+    ["72", "701333", "معتز طارق منصور", "30-1496", "afico", "احمر", "بنزين 95", "في الخدمة", "11-05-2025", "27-08-2025", "5-31352", ""],
+    ["73", "701343", "علاء الدين علي", "8-9297", "داف", "ابيض + اخضر", "بنزين 95", "في الخدمة", "18-04-2024", "21-05-2025", "5-35690", ""],
+    ["74", "701399", "امحمد دخيل امحمد", "30-2223", "داف", "ابيض", "بنزين 95", "في الخدمة", "24-11-2024", "12-05-2025", "30-1450 **", ""],
+    ["75", "701409", "فرجاني بوعجيله عبد الغني", "8-82704", "afico", "احمر", "بنزين 95", "في الخدمة", "15-05-2025", "10-09-2025", "", ""],
+    ["76", "701417", "صهيب رمضان على الجروشي", "8-12455", "afico", "ابيض", "بنزين 95", "في الخدمة", "14-04-2025", "10-10-2025", "30-1484", ""],
+    ["77", "701442", "خالد علي بشير", "6-25-7179", "داف", "ابيض", "بنزين 95", "في الخدمة", "30-11-2024", "26-05-2025", "2-8-4150", ""],
+    ["78", "701458", "سالم الزوام مصطفي", "12-972", "afico", "ابيض", "بنزين 95", "في الخدمة", "25-08-2024", "18-02-2025", "25-14526", ""],
+    ["79", "701460", "صقر رمضان علي", "8-12454", "afico", "ازرق", "بنزين 95", "في الخدمة", "13-04-2025", "10-10-2025", "30-1611", ""],
+    ["80", "701467", "عبد الفتاح جمعه محمد", "5-8594", "afico", "ابيض", "بنزين 95", "في الخدمة", "10-02-2025", "07-05-2025", "5-15514", ""],
+    ["81", "701468", "علي المختار علي", "5-11826", "afico", "ابيض", "بنزين 95", "في الخدمة", "06-04-2025", "30-07-2025", "5-16350", ""],
+    ["82", "701491", "محمد جمعه علي", "8-12411", "afico", "ابيض", "بنزين 95", "في الخدمة", "15-04-2025", "25-08-2025", "30-1524", ""],
+    ["83", "701493", "محمد صالح محمد", "5-35575", "afico", "احمر", "بنزين 95", "في الخدمة", "17-04-2025", "07-07-2025", "5-36457", ""],
+    ["84", "701513", "انيس عبد الرحيم يونس", "5-41408", "afico", "ابيض", "بنزين 95", "في الخدمة", "07-12-2024", "15-05-2025", "5-31913", ""],
+    ["85", "701717", "عبد الله مختار عبد الله", "14-2039", "afico", "ابيض", "بنزين 95", "في الخدمة", "30-04-2025", "20-09-2025", "30-1220", ""],
+    ["86", "701595", "فتح الله محمد حمد", "5-40825", "afico", "ابيض", "بنزين 95", "في الخدمة", "07-01-2025", "12-05-2025", "5-31772", ""],
+    ["87", "701596", "ارجیعه سعيد ارجيعه", "5-36106", "afico", "ابيض", "بنزين 95", "في الخدمة", "02-12-2024", "25-05-2025", "3-6587", ""],
+    ["88", "701643", "اسامة نويجي مفتاح", "8-12707", "داف", "احمر", "بنزين 95", "في الخدمة", "19-12-2024", "20-05-2025", "30-1938", ""],
+    ["89", "701649", "مسعود عبد الحفيظ مسعود", "12-1111", "afico", "ابيض", "بنزين 95", "في الخدمة", "09-03-2025", "30-07-2025", "5-24764", ""],
+    ["90", "701676", "مصطفي جمال مصطفي", "8-9944", "afico", "ابيض", "بنزين 95", "في الخدمة", "21-04-2025", "10-10-2025", "5-34321", ""],
+    ["91", "702052", "حمد امراجع مشري", "8-12125", "afico", "احمر", "بنزين 95", "في الخدمة", "20-09-2025", "09-10-2024", "5-18514", ""],
+    ["92", "701695", "امحمد عبد الرحيم امحمد", "12-1011", "afico", "احمر", "بنزين 95", "في الخدمة", "30-07-2025", "12-05-2025", "30-1889", ""],
+    ["93", "800513", "اشرف عبد السلام مفتاح", "1234-35", "afico", "احمر", "بنزين 95", "في الخدمة", "18-08-2025", "08-10-2024", "14-2115", ""],
+    ["94", "701739", "محمد على بشير", "8-3374", "داف", "ابيض", "بنزين 95", "في الخدمة", "26-05-2025", "26-01-2025", "5-34753", ""],
+    ["95", "701740", "فرج عبد النبي سليمان", "52-135", "afico", "اصفر", "بنزين 95", "في الخدمة", "13-10-2025", "05-05-2025", "5-33448", ""],
+    ["96", "701750", "عبد الكريم سعيد ادريس", "8-13132", "مان", "ابيض", "بنزين 95", "في الخدمة", "20-07-2025", "08-10-2024", "*******", ""],
+    ["97", "702226", "زیدان عبد الكريم حسن صالح", "5-42219", "afico", "احمر", "بنزين 95", "في الخدمة", "01-04-2025", "20-10-2024", "5-33097", ""],
+    ["98", "701804", "عبد الباسط عبد السلام عيسي", "30-1509", "afico", "ابيض", "بنزين 95", "في الخدمة", "12-04-2025", "08-06-2025", "30-1768", ""],
+    ["99", "701900", "حمدي سالم الناجي", "8-12753", "afico", "ابيض", "بنزين 95", "في الخدمة", "29-04-2025", "02-07-2025", "5-18666", ""],
+    ["100", "701901", "علي مفتاح حبريشه", "30-1392", "afico", "احمر", "بنزين 95", "في الخدمة", "30-11-2024", "24-05-2025", "-3732", ""],
+    ["101", "701904", "فتحي عبد الرحيم يونس", "35-72", "afico", "ابيض", "بنزين 95", "في الخدمة", "12-04-2025", "15-07-2025", "14-1927", ""],
+    ["102", "701906", "علاء الدين محمد محمد", "17-236", "داف", "ابيض", "بنزين 95", "في الخدمة", "30-11-2024", "26-05-2025", "42-29", ""],
+    ["103", "701919", "سعيد فرج سعيد", "14-1847", "afico", "ازرق", "بنزين 95", "في الخدمة", "19-11-2024", "01-04-2025", "5-38622", ""],
+    ["104", "701977", "عبد العزيز امراجع علي", "43832", "afico", "ابيض", "بنزين 95", "في الخدمة", "19-03-2025", "30-07-2025", "34357", ""],
+    ["105", "701978", "منير علي محمد", "3-8366", "afico", "احمر", "بنزين 95", "في الخدمة", "10-04-2025", "30-07-2025", "30-3751", ""],
+    ["106", "701987", "محمد عبد الغفار خالد", "30-1201", "afico", "ابيض", "بنزين 95", "في الخدمة", "03-09-2024", "31-12-2024", "30-3786", ""],
+    ["107", "701989", "سالم محمد عبد الله", "30-1785", "afico", "ابيض", "بنزين 95", "في الخدمة", "08-05-2025", "30-07-2025", "30-1897", ""],
+    ["108", "701992", "عوض صلاح العبار", "25-13017", "afico", "ابيض", "بنزين 95", "في الخدمة", "06-04-2025", "30-07-2025", "30-2017", ""],
+    ["109", "701996", "اكريم حسن محمد", "8-5574", "afico", "ازرق", "بنزين 95", "في الخدمة", "23-03-2025", "30-07-2025", "5-36753", ""],
+    ["110", "702004", "صلاح فرج حمد محمد", "5-46328", "afico", "ابيض", "بنزين 95", "في الخدمة", "05-11-2024", "18-05-2025", "5-33941", ""],
+    ["111", "702008", "حسام عبدالله محمد", "5-14531", "afico", "ابيض", "بنزين 95", "في الخدمة", "07-05-2025", "28-10-2025", "25-18778", ""],
+    ["112", "702017", "فتحي على مفتاح", "8-13034", "afico", "ابيض", "بنزين 95", "في الخدمة", "27-11-2024", "26-05-2025", "5-32631", ""],
+    ["113", "702030", "عبد الرازق ميلاد محمد", "25-17575", "afico", "ابيض", "بنزين 95", "في الخدمة", "04-03-2025", "30-07-2025", "8-13382", ""],
+    ["114", "702041", "حاتم سالم الناجي", "30-2426", "afico", "ابيض", "بنزين 95", "في الخدمة", "23-04-2025", "08-09-2025", "8-10165", ""],
+    ["115", "702051", "علي سعيد العجل", "3-12233", "afico", "ابيض", "بنزين 95", "في الخدمة", "19-03-2025", "30-07-2025", "3-6888", ""],
+    ["116", "702053", "ابو بكر محمد ابو بكر", "6-1662", "afico", "ابيض", "بنزين 95", "في الخدمة", "26-11-2024", "01-04-2025", "30-2913", ""],
+    ["117", "702054", "وليد اهلال حمد", "8-12563", "afico", "رصاصي", "بنزين 95", "في الخدمة", "14-11-2024", "01-04-2025", "30-3551", ""],
+    ["118", "702057", "احمد محمد بوبكر", "30-1845", "afico", "ابيض", "بنزين 95", "في الخدمة", "28-11-2024", "01-04-2025", "30-3174", ""],
+    ["119", "702059", "مصعب عبد الرحمن رمضان", "8-14169", "afico", "احمر", "بنزين 95", "في الخدمة", "12-02-2025", "11-06-2025", "30-2914", ""],
+    ["120", "702060", "مفتاح محمود الجارح", "30-1958", "afico", "ابيض", "بنزين 95", "في الخدمة", "28-07-2024", "29-11-2024", "30-3175", ""],
+    ["121", "702067", "وليد عبد الرازق محمد", "8-13071", "afico", "ابيض", "بنزين 95", "في الخدمة", "14-04-2025", "10-10-2025", "8-12886", ""],
+    ["122", "702072", "محمد حماد ناصف", "30-1671", "afico", "ابيض", "بنزين 95", "في الخدمة", "07-01-2025", "10-06-2025", "8-8927", ""],
+    ["123", "702084", "عماد فرج جمعه", "5-41966", "afico", "ابيض", "بنزين 95", "في الخدمة", "10-04-2025", "17-09-2025", "14-1635", ""],
+    ["124", "702088", "اشرف عبد الحميد علي میلاد", "25-17081", "afico", "ابيض", "بنزين 95", "في الخدمة", "23-04-2025", "08-10-2025", "5-33886", ""],
+    ["125", "702100", "محمد عبد الباسط عبد السلام", "8-13289", "afico", "اسود", "بنزين 95", "في الخدمة", "01-12-2024", "28-02-2025", "30-1767", ""],
+    ["126", "702102", "محمد سالم دومه محمود", "8-4103", "afico", "ابيض", "بنزين 95", "في الخدمة", "15-02-2025", "26-05-2025", "30-2761", ""],
+    ["127", "702125", "ناصر ابراهیم فرج الرياني", "6-1074", "afico", "اسود", "بنزين 95", "في الخدمة", "30-07-2025", "08-04-2025", "30-2900", ""],
+    ["128", "702127", "بوبكر سعيد بوبكر", "5-10498", "afico", "ابيض", "بنزين 95", "في الخدمة", "30-07-2025", "27-02-2025", "5-35056", ""],
+    ["129", "702130", "طارق محمد بوبكر", "8-13536", "afico", "احمر", "بنزين 95", "في الخدمة", "16-11-2024", "02-03-2025", "8-13074", ""],
+    ["130", "702131", "سعيد يوسف سعيد سالم", "13050-8", "afico", "ازرق", "بنزين 95", "موقوفة", "06-02-2025", "06-11-2024", "5-34248", ""],
+    ["131", "702139", "عثمان صالح عثمان", "30-1913", "afico", "ابيض", "بنزين 95", "في الخدمة", "14-12-2024", "28-02-2025", "30-1845", ""],
+    ["132", "702145", "عادل فرج الجربي", "30-2060", "afico", "ابيض", "بنزين 95", "في الخدمة", "01-04-2025", "17-10-2024", "30-3313", ""],
+    ["133", "702159", "حمدي عبد الله موسي", "8-13199", "afico", "ابيض", "بنزين 95", "في الخدمة", "08-05-2025", "08-10-2025", "8-12862", ""],
+    ["134", "702162", "موسی فرج موسی", "8-13115", "afico", "ابيض", "بنزين 95", "في الخدمة", "20-03-2025", "22-07-2025", "30-2978", ""],
+    ["135", "701791", "علاء منصور خميس", "12-1035", "afico", "اصفر", "بنزين 95", "في الخدمة", "27-07-2025", "12-02-2025", "3-6755", ""],
+    ["136", "702171", "نوري حسن محمد", "8-7666", "afico", "ابيض", "بنزين 95", "في الخدمة", "01-05-2025", "30-07-2025", "8-12883", ""],
+    ["137", "702174", "مهند جمعه الدوكالي", "30-2153", "afico", "ابيض", "بنزين 95", "في الخدمة", "26-05-2025", "27-11-2024", "8-13529", ""],
+    ["138", "702175", "احمد ابريك عبد الحميد", "35-88", "afico", "ابيض", "بنزين 95", "في الخدمة", "14-07-2025", "14-04-2025", "14-2021", ""],
+    ["139", "702177", "ابوبكر ابراهيم حامد", "8-14822", "afico", "اسود", "بنزين 95", "في الخدمة", "07-05-2025", "26-05-2025", "30-3100", ""],
+    ["140", "702183", "عبد الحميد مفتاح ميد حمد", "8-4490", "داف", "ازرق", "بنزين 95", "في الخدمة", "30-11-2024", "26-05-2025", "30-2743", ""],
+    ["141", "702184", "امبارك فرج امحمد", "8-4599", "داف", "ابيض", "بنزين 95", "في الخدمة", "23-01-2025", "17-05-2025", "8-13165", ""],
+    ["142", "702190", "فرج امحمد شیعب محمد", "10-37", "afico", "يمي", "بنزين 95", "في الخدمة", "12-04-2025", "05-05-2025", "3-5484", ""],
+    ["143", "702191", "خالد خميس مسعود", "30-1383", "afico", "ابيض", "بنزين 95", "في الخدمة", "19-03-2025", "04-05-2025", "30-2404", ""],
+    ["144", "702201", "هشام فرج محمد", "8-13578", "afico", "احمر", "بنزين 95", "في الخدمة", "29-04-2025", "17-10-2025", "5-35728", ""],
+    ["145", "702202", "حاتم عمر سويلم محمد", "8-7735", "afico", "يامي", "بنزين 95", "في الخدمة", "11-05-2025", "30-07-2025", "14-973", ""],
+    ["146", "702205", "خیري السليمان وواو", "73-5", "afico", "ابيض", "بنزين 95", "في الخدمة", "27-11-2025", "10-05-2025", "5-36511", ""],
+    ["147", "702206", "عبد الباسط سليمان عطيه", "30-2126", "مرسيدس", "ابيض", "بنزين 95", "في الخدمة", "04-09-2024", "12-04-2025", "5-35683", ""],
+    ["148", "702213", "محمد عبد الواسع احمد", "8-13524", "afico", "ابيض", "بنزين 95", "في الخدمة", "19-02-2025", "30-07-2025", "5-33270", ""],
+    ["149", "702218", "مجدي جمعه محمد العميري", "5-46160", "afico", "احمر", "بنزين 95", "في الخدمة", "21-04-2025", "30-08-2025", "5-27110", ""],
+    ["150", "702228", "محمد صالح احمد", "30-2081", "afico", "ابيض", "بنزين 95", "في الخدمة", "24-10-2024", "05-03-2025", "5-33037", ""],
+    ["151", "702249", "فرج محمد امبارك", "16-418", "afico", "ابيض", "بنزين 95", "في الخدمة", "04-09-2024", "03-03-2025", "5-36320", ""],
+    ["152", "702251", "احمد شیعب فرج", "52-159", "afico", "ابيض", "بنزين 95", "في الخدمة", "10-11-2024", "03-04-2025", "30-4302", ""],
+    ["153", "701078", "سليمان ناجي محمد", "8-9166", "داف", "اخضر", "بنزين 95", "في الخدمة", "02-12-2024", "26-05-2025", "30-3684", ""],
+    ["154", "702253", "محمد ناجي يونس محمد", "77-18", "afico", "ابيض", "بنزين 95", "في الخدمة", "17-11-2024", "05-06-2025", "14-1663", ""],
+    ["155", "702256", "محمد جمعه علي", "12444", "afico", "ابيض", "بنزين 95", "في الخدمة", "10-04-2025", "10-06-2025", "30-3702", ""],
+    ["156", "702262", "سند سالم سعد", "5-42302", "داف", "رصاصي", "بنزين 95", "في الخدمة", "18-02-2025", "04-04-2025", "30-4264", ""],
+    ["157", "702267", "مرعي فرج عمر", "8-8803", "داف", "ازرق ابيض", "بنزين 95", "في الخدمة", "22-09-2024", "28-02-2025", "30-3791", ""],
+    ["158", "702268", "احمد فرج السنوسي الشكري", "8-13691", "داف", "ابيض", "بنزين 95", "في الخدمة", "19-02-2025", "30-07-2025", "8-6794", ""],
+    ["159", "702275", "عبد السلام علي محمد", "30-1306", "afico", "ابيض", "بنزين 95", "في الخدمة", "18-03-2025", "26-04-2025", "3-6761", ""],
+    ["160", "702288", "عبد السلام المولي يونس", "45-26", "afico", "ابيض", "بنزين 95", "في الخدمة", "06-04-2025", "30-07-2025", "14-2519", ""],
+    ["161", "702291", "محمد سعيد فتح", "2-508", "afico", "ازرق", "بنزين 95", "في الخدمة", "02-03-2025", "12-05-2025", "3-4980", ""],
+    ["162", "702292", "احمد صالح محمد", "8-13695", "afico", "ابيض", "بنزين 95", "في الخدمة", "08-05-2025", "21-07-2025", "22-18-399", ""],
+    ["163", "702295", "حسن سعد عيسى", "3-7831", "afico", "ابيض", "وقود", "في الخدمة", "25-08-2024", "18-02-2025", "6-1105", ""],
+    ["164", "702297", "احمد محمود محمد", "30-2242", "afico", "ابيض", "بنزين 95", "في الخدمة", "14-12-2024", "29-05-2025", "30-3980", ""],
+    ["165", "702309", "اشرف حسن محمد", "30-2317", "afico", "ازرق", "بنزين 95", "في الخدمة", "07-04-2025", "23-07-2025", "30-4047", ""],
+    ["166", "702313", "سعد محمد شیعب", "30-2350", "afico", "اسود", "بنزين 95", "موقوفة", "30-10-2024", "01-04-2025", "14-2023", ""],
+    ["167", "702317", "عبد الكريم محمد الزروقي", "8-13718", "afico", "ابيض", "وقود", "في الخدمة", "18-09-2024", "18-02-2025", "5-18775", ""],
+    ["168", "702321", "عبد الكريم محمد الزروقي", "8-13635", "afico", "ابيض", "بنزين 95", "في الخدمة", "23-03-2025", "30-07-2025", "30-2584", ""],
+    ["169", "702323", "مرعي علي ابراهيم علي", "5-22495", "afico", "ازرق", "بنزين 95", "في الخدمة", "27-11-2024", "26-05-2025", "3-5967", ""],
+    ["170", "702334", "محمد حسن محمد", "30-2306", "afico", "ابيض", "بنزين 95", "في الخدمة", "07-04-2025", "30-07-2025", "25-19274", ""],
+    ["171", "702337", "محمد ناصر محمد الورفلي", "12-988", "داف", "احمر", "بنزين 95", "في الخدمة", "03-12-2024", "01-04-2025", "14-2283", ""],
+    ["172", "702340", "احمد ياسين مختار", "8-7586", "afico", "ابيض", "وقود", "في الخدمة", "17-10-2024", "01-04-2025", "5-36428", ""],
+    ["173", "702347", "عبد القادر محمد العقيله", "8-13899", "afico", "ابيض", "بنزين 95", "في الخدمة", "06-05-2025", "29-07-2025", "8-13336", ""],
+    ["174", "702356", "عادل حسين علي", "8-13909", "afico", "ابيض", "بنزين 95", "في الخدمة", "26-04-2025", "08-10-2025", "25-13037", ""],
+    ["175", "702360", "مفتاح محمود الجارح", "30-2391", "afico", "ازرق", "بنزين 95", "في الخدمة", "11-05-2025", "30-07-2025", "5-38077", ""],
+    ["176", "702361", "عبد التواب غيث خليفه", "33-937", "afico", "ابيض", "بنزين 95", "موقوفة", "26-03-2025", "30-07-2025", "5-38277", ""],
+    ["177", "702362", "سالم عبد الكريم محمد", "5-39231", "مان", "ابيض", "بنزين 95", "في الخدمة", "14-11-2024", "02-03-2025", "8-13168", ""],
+    ["178", "702363", "عبد الكريم الهادي علي", "8-7762", "afico", "ازرق", "بنزين 95", "في الخدمة", "16-11-2024", "01-04-2025", "****** تم التسليم", ""],
+    ["179", "702364", "عبد السلام عبد الحميد", "5-49191", "afico", "ازرق", "بنزين 95", "في الخدمة", "17-11-2024", "01-04-2025", "*****تم التسليم", ""],
+    ["180", "702365", "محمود ابراهيم محمد", "25-18339", "afico", "ابيض", "بنزين 95", "في الخدمة", "20-03-2025", "30-07-2025", "30-3719", ""],
+    ["181", "702375", "محمد ابراهيم احمد", "30-2549", "afico", "ابيض", "وقود", "في الخدمة", "03-12-2024", "01-06-2025", "16-155", ""],
+    ["182", "702379", "ایمان فرج عبد القادر", "25-18074", "afico", "يامي", "بنزين 95", "في الخدمة", "14-05-2025", "08-10-2025", "3-6923", ""],
+    ["183", "702380", "محمد بوبكر محمد", "5-49027", "afico", "ابيض", "بنزين 95", "في الخدمة", "20-02-2025", "27-07-2025", "5-38582", ""],
+    ["184", "702384", "عبد المنعم فرج خليفه", "8-13998", "داف", "ابيض", "بنزين 95", "في الخدمة", "22-12-2024", "04-06-2025", "8-10717", ""],
+    ["185", "702385", "ابراهيم سعيد ابراهيم الورفلي", "8-13938", "afico", "اصفر", "وقود", "في الخدمة", "16-12-2024", "11-06-2025", "12-905", ""],
+    ["186", "702389", "احمد محمود محمد", "8-13972", "afico", "ابيض", "وقود", "في الخدمة", "22-12-2024", "01-06-2025", "8-13387", ""],
+    ["187", "702391", "فرج عبد السلام عمران", "14-1732", "afico", "ابيض", "بنزين 95", "في الخدمة", "07-01-2025", "20-05-2025", "35-17", ""],
+    ["188", "702392", "سالم فتحي عمر", "8-13112", "afico", "ازرق", "بنزين 95", "في الخدمة", "13-05-2025", "02-07-2025", "30-263", ""],
+    ["189", "702393", "عبد السلام ونيس محمد", "8-14677", "afico", "ابيض", "بنزين 95", "في الخدمة", "06-04-2025", "30-07-2025", "25-14073", ""],
+    ["190", "702402", "محمد علي البركي فرج", "8-8573", "داف", "ابيض", "وقود", "في الخدمة", "19-01-2025", "04-06-2025", "8-13574", ""],
+    ["191", "702403", "حسن سليمان عثمان", "14-2114", "afico", "ابيض", "وقود", "في الخدمة", "21-01-2025", "02-07-2025", "14-2471", ""],
+    ["192", "702411", "الطه المهدي محمد", "27-111", "afico", "ابيض", "وقود", "في الخدمة", "09-02-2025", "26-07-2025", "27-157", ""],
+    ["193", "702413", "فرج موسي اجويلي", "5-49703", "afico", "ابيض", "وقود", "في الخدمة", "11-02-2025", "30-07-2025", "5-39556", ""],
+    ["194", "702414", "محمد عبد الرحيم محمد", "12-966", "داف", "ابيض", "وقود", "في الخدمة", "11-02-2025", "30-04-2025", "30-3789", ""],
+    ["195", "702417", "عبد المنعم فرج خليفه", "8-14541", "afico", "ابيض", "وقود", "في الخدمة", "18-02-2025", "04-06-2025", "8-13799", ""],
+    ["196", "702433", "عامر محمد عامر", "52-175", "afico", "ابيض", "وقود", "في الخدمة", "16-03-2025", "04-06-2025", "18-588", ""],
+    ["197", "702431", "علي سعيد امراجع", "14-2108", "afico", "برتقالي", "بنزين 95", "في الخدمة", "06-05-2025", "30-07-2025", "14-2429", ""],
+    ["198", "702439", "اشرف حسن محمد", "8-14024", "afico", "ابيض", "وقود", "في الخدمة", "10-04-2025", "30-07-2025", "3-6807", ""],
+    ["199", "702450", "حمد فتحي محمد", "21-12253", "afico", "ابيض", "وقود", "في الخدمة", "03-05-2025", "01-06-2025", "30-701", ""],
+    ["200", "701525", "حامد علي محمد", "8-14785", "afico", "ابيض", "بنزين 95", "في الخدمة", "06-04-2025", "30-07-2025", "25-18073", ""],
+    ["201", "702455", "علي عبد السلام محمد", "30-2448", "afico", "ابيض", "بنزين 95", "في الخدمة", "18-03-2025", "26-04-2025", "30-4092", ""]
+];
+
+        const initialDriversData = driversData.map(d => ({
+            id: generateUniqueId(), // Ensure unique IDs for initial data
+            rt: d[0],
+            permitNum: d[1],
+            driverName: d[2],
+            truckNum: d[3],
+            truckType: d[4],
+            truckColor: d[5],
+            productType: d[6],
+            status: d[7],
+            issueDate: d[8],
+            expiryDate: d[9],
+            trailerNum: d[10],
+            phoneNumber: d[11] || "" // رقم الهاتف فارغ افتراضياً
+        }));
+
+        const initialFuelStationsData = [
+            { id: "station1", name: "محطة الشرارة المركزية", number: "S001", company: STATION_COMPANIES.SHARARA, address: "طريق المطار، طرابلس" },
+            { id: "station2", name: "محطة الطرق السريعة - غريان", number: "H005", company: STATION_COMPANIES.HIGHWAYS, address: "الطريق السريع، غريان" },
+            { id: "station3", name: "محطة البريقة - مصراتة", number: "B012", company: STATION_COMPANIES.BREGA, address: "المنطقة الصناعية، مصراتة" },
+            { id: "station4", name: "محطة الراحلة - بنغازي", number: "R003", company: STATION_COMPANIES.RAHILA, address: "شارع جمال عبد الناصر، بنغازي" },
+            { id: "station5", name: "محطة المدار الجديد - سبها", number: "A007", company: STATION_COMPANIES.ALEMDAR, address: "وسط المدينة، سبها" },
+            { id: "station6", name: "محطة ليبيا للنفط - الزاوية", number: "L002", company: STATION_COMPANIES.LIBYA_OIL, address: "الطريق الساحلي، الزاوية" },
+            { id: "stationS1", name: "محطة الشرارة الثانية", number: "S002", company: STATION_COMPANIES.SHARARA, address: "الفرناج، طرابلس" },
+            { id: "stationH1", name: "محطة الطرق السريعة - الخمس", number: "H006", company: STATION_COMPANIES.HIGHWAYS, address: "الطريق السريع، الخمس" },
+        ].map(fs => ({...fs, id: fs.id || generateUniqueId()}));
+
+        const todayForSeed = new Date();
+        const yesterdayForSeed = new Date(new Date().setDate(todayForSeed.getDate() - 1));
+        const threeDaysAgoForSeed = new Date(new Date().setDate(todayForSeed.getDate() - 3));
+        const eightDaysAgoForSeed = new Date(new Date().setDate(todayForSeed.getDate() - 8));
+
+
+        const initialDeliveryLogsData = [
+             { id: "log1", driverId: initialDriversData[0].id, stationId: initialFuelStationsData[0].id, date: todayForSeed.toISOString().split('T')[0], fuelType: 'بنزين', quantity: 40000, notificationNumber: "N001" }, // حافظ - Green
+             { id: "log2", driverId: initialDriversData[1].id, stationId: initialFuelStationsData[1].id, date: threeDaysAgoForSeed.toISOString().split('T')[0], fuelType: 'ديزل', quantity: 50000, notificationNumber: "N002" }, // موسى - Yellow
+             { id: "log3", driverId: initialDriversData[2].id, stationId: initialFuelStationsData[2].id, date: yesterdayForSeed.toISOString().split('T')[0], fuelType: 'بنزين', quantity: 36000, notificationNumber: "" }, // احمد - Green
+             { id: "log4", driverId: initialDriversData[3].id, stationId: initialFuelStationsData[3].id, date: eightDaysAgoForSeed.toISOString().split('T')[0], fuelType: 'بنزين', quantity: 40000, notificationNumber: "N003" }, // عادل - Red
+             // Driver 5 (معتز) will have no logs, should be Red
+             { id: "log5", driverId: initialDriversData[6].id, stationId: initialFuelStationsData[0].id, date: todayForSeed.toISOString().split('T')[0], fuelType: 'ديزل', quantity: 42000, notificationNumber: "N004" }, // محمود - Green
+             { id: "log6", driverId: initialDriversData[8].id, stationId: initialFuelStationsData[1].id, date: yesterdayForSeed.toISOString().split('T')[0], fuelType: 'بنزين', quantity: 48000, notificationNumber: "N005" }, // يونس - Green
+
+
+        ].map(dl => ({...dl, id: dl.id || generateUniqueId()}));
+        // --- END: Initial Data ---
+
+        // --- START: Global State ---
+        let drivers = JSON.parse(localStorage.getItem('drivers')) || initialDriversData;
+        let fuelStations = JSON.parse(localStorage.getItem('fuelStations')) || initialFuelStationsData;
+        let deliveryLogs = JSON.parse(localStorage.getItem('deliveryLogs')) || initialDeliveryLogsData.map(dl => ({...dl, notificationNumber: dl.notificationNumber || ""}));
+        // --- END: Global State ---
+
+        // --- START: Data Persistence ---
+        function saveData() {
+            console.log("Saving data to localStorage..."); // Debug log
+            localStorage.setItem('drivers', JSON.stringify(drivers));
+            localStorage.setItem('fuelStations', JSON.stringify(fuelStations));
+            localStorage.setItem('deliveryLogs', JSON.stringify(deliveryLogs));
+            console.log("Data saved."); // Debug log
+        }
+        // --- END: Data Persistence ---
+
+        // --- START: Message Box ---
+        function showMessage(text, type = 'info', duration = 3000) {
+            console.log(`Showing message: ${text} (${type})`); // Debug log
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.textContent = text;
+            messageBox.className = '';
+            messageBox.classList.add(type);
+            messageBox.style.display = 'flex';
+            setTimeout(() => { hideMessage(); }, duration);
+        }
+        function hideMessage() {
+            console.log("Hiding message box."); // Debug log
+            document.getElementById('messageBox').style.display = 'none';
+        }
+        // --- END: Message Box ---
+
+        // --- START: Modal Control ---
+        function openModal(modalId) {
+            console.log("Opening modal:", modalId); // Debug log
+            document.getElementById(modalId).classList.add('active');
+        }
+        function closeModal(modalId) {
+            console.log("Closing modal:", modalId); // Debug log
+            document.getElementById(modalId).classList.remove('active');
+        }
+        // --- END: Modal Control ---
+
+        // --- START: Fuel Station Functions ---
+        function populateStationCompanyDropdowns() {
+            console.log("Populating station company dropdowns..."); // Debug log
+            const generalSelects = [
+                document.getElementById('newStationCompany'),
+                document.getElementById('editStationCompany'),
+                document.getElementById('reportCompanyFilter')
+            ];
+            generalSelects.forEach(selectElement => {
+                if (!selectElement) return;
+                const firstOptionValue = selectElement.options[0] ? selectElement.options[0].value : "";
+                const firstOptionText = selectElement.options[0] ? selectElement.options[0].textContent : "";
+                selectElement.innerHTML = '';
+                if (firstOptionText) {
+                    const firstOpt = document.createElement('option');
+                    firstOpt.value = firstOptionValue;
+                    firstOpt.textContent = firstOptionText;
+                    selectElement.appendChild(firstOpt);
+                }
+                for (const key in STATION_COMPANIES) {
+                    const option = document.createElement('option');
+                    option.value = STATION_COMPANIES[key];
+                    option.textContent = STATION_COMPANIES[key];
+                    selectElement.appendChild(option);
+                }
+            });
+
+            const deliveryCompanyFilter = document.getElementById('filterCompanyForDelivery');
+            if (deliveryCompanyFilter) {
+                deliveryCompanyFilter.innerHTML = '';
+                const allOption = document.createElement('option');
+                allOption.value = "all";
+                allOption.textContent = "جميع الشركات";
+                deliveryCompanyFilter.appendChild(allOption);
+
+                const specificCompanies = [STATION_COMPANIES.SHARARA, STATION_COMPANIES.HIGHWAYS, STATION_COMPANIES.BREGA];
+                specificCompanies.forEach(companyName => {
+                    const option = document.createElement('option');
+                    option.value = companyName;
+                    option.textContent = companyName;
+                    deliveryCompanyFilter.appendChild(option);
+                });
+                const otherOption = document.createElement('option');
+                otherOption.value = "other_companies";
+                otherOption.textContent = "أخرى (باقي الشركات)";
+                deliveryCompanyFilter.appendChild(otherOption);
+            }
+             console.log("Station company dropdowns populated."); // Debug log
+        }
+
+        function addFuelStation() {
+            console.log("Attempting to add fuel station..."); // Debug log
+            const name = document.getElementById('newStationName').value.trim();
+            const number = document.getElementById('newStationNumber').value.trim();
+            const company = document.getElementById('newStationCompany').value;
+            const address = document.getElementById('newStationAddress').value.trim();
+            if (!name || !company) {
+                showMessage("اسم المحطة والشركة مطلوبان.", "error");
+                console.warn("Add station failed: Missing name or company."); // Debug warn
+                return;
+            }
+            const newStation = { id: generateUniqueId(), name, number, company, address };
+            fuelStations.push(newStation);
+            saveData();
+            renderFuelStationsTable();
+            showMessage("تمت إضافة محطة وقود جديدة بنجاح.", "success");
+            console.log("Fuel station added:", newStation); // Debug log
+            ['newStationName', 'newStationNumber', 'newStationCompany', 'newStationAddress'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        function renderFuelStationsTable() {
+            console.log("Rendering fuel stations table..."); // Debug log
+            const tableBody = document.getElementById('fuelStationsTableBody');
+            const searchTerm = document.getElementById('searchStationInput').value.toLowerCase();
+            tableBody.innerHTML = '';
+            const filteredStations = fuelStations.filter(s =>
+                s.name.toLowerCase().includes(searchTerm) ||
+                (s.number && s.number.toLowerCase().includes(searchTerm)) ||
+                s.company.toLowerCase().includes(searchTerm) ||
+                (s.address && s.address.toLowerCase().includes(searchTerm))
+            );
+            if (filteredStations.length === 0) {
+                const r = tableBody.insertRow(); const c = r.insertCell(); c.colSpan = 5; c.textContent = 'لا توجد محطات.'; c.className = 'text-center py-4';
+                 console.log("No fuel stations found matching search term."); // Debug log
+                 return;
+            }
+            filteredStations.forEach(s => {
+                const r = tableBody.insertRow();
+                r.insertCell().textContent = s.name;
+                r.insertCell().textContent = s.number || '-';
+                r.insertCell().textContent = s.company;
+                r.insertCell().textContent = s.address || '-';
+                const ac = r.insertCell(); ac.className = 'flex items-center justify-end space-x-1 md:space-x-2';
+                ac.innerHTML = `
+                    <button onclick="openEditStationModal('${s.id}')" class="icon-btn text-yellow-500" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteFuelStation('${s.id}')" class="icon-btn text-red-500" title="حذف"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="viewStationReport('${s.id}')" class="icon-btn text-teal-500" title="عرض الكشف"><i class="fas fa-file-alt"></i></button>`;
+            });
+             console.log(`Fuel stations table rendered with ${filteredStations.length} stations.`); // Debug log
+        }
+
+        function openEditStationModal(id) {
+            console.log("Attempting to open edit station modal for ID:", id); // Debug log
+            const s = fuelStations.find(st => st.id === id);
+            if (!s) {
+                showMessage("لم يتم العثور على المحطة.", "error");
+                console.error("Station not found for editing, ID:", id); // Debug error
+                return;
+            }
+            document.getElementById('editStationId').value = s.id;
+            document.getElementById('editStationName').value = s.name;
+            document.getElementById('editStationNumber').value = s.number || '';
+            document.getElementById('editStationCompany').value = s.company;
+            document.getElementById('editStationAddress').value = s.address || '';
+            openModal('editStationModal');
+            console.log("Edit station modal opened for station:", s); // Debug log
+        }
+
+        function saveStationChanges() {
+            console.log("Attempting to save station changes..."); // Debug log
+            const id = document.getElementById('editStationId').value;
+            const name = document.getElementById('editStationName').value.trim();
+            const company = document.getElementById('editStationCompany').value;
+            if (!name || !company) {
+                showMessage("اسم المحطة والشركة مطلوبان.", "error");
+                console.warn("Save station failed: Missing name or company."); // Debug warn
+                return;
+            }
+            const idx = fuelStations.findIndex(s => s.id === id);
+            if (idx > -1) {
+                fuelStations[idx] = {
+                    ...fuelStations[idx], name, company,
+                    number: document.getElementById('editStationNumber').value.trim(),
+                    address: document.getElementById('editStationAddress').value.trim()
+                };
+                saveData(); renderFuelStationsTable(); closeModal('editStationModal');
+                showMessage("تم حفظ تغييرات المحطة.", "success");
+                console.log("Station changes saved for ID:", id); // Debug log
+            } else {
+                 showMessage("خطأ في حفظ التغييرات: لم يتم العثور على المحطة.", "error");
+                 console.error("Station not found for saving changes, ID:", id); // Debug error
+            }
+        }
+
+        function deleteFuelStation(id) {
+            console.log("Attempting to delete fuel station with ID:", id); // Debug log
+            if (confirm("هل أنت متأكد من حذف هذه المحطة وجميع سجلات التوصيل المرتبطة بها؟")) {
+                fuelStations = fuelStations.filter(s => s.id !== id);
+                deliveryLogs = deliveryLogs.filter(log => log.stationId !== id);
+                saveData(); renderFuelStationsTable();
+                showMessage("تم حذف المحطة.", "success");
+                console.log("Fuel station and associated logs deleted for ID:", id); // Debug log
+            } else {
+                console.log("Fuel station deletion cancelled."); // Debug log
+            }
+        }
+        function searchStationsTable() {
+            console.log("Searching stations table..."); // Debug log
+            renderFuelStationsTable();
+        }
+        // --- END: Fuel Station Functions ---
+
+        // --- START: Driver Functions ---
+        function getDriverDeliveryIndicator(driverId, todayDate) {
+            const driverDeliveries = deliveryLogs.filter(log => log.driverId === driverId);
+            if (driverDeliveries.length === 0) return { color: 'red', title: 'لا توجد طلبيات مسجلة' }; // No logs = Red
+
+            driverDeliveries.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by most recent
+            const lastDeliveryDate = new Date(driverDeliveries[0].date);
+            lastDeliveryDate.setHours(0,0,0,0); // Normalize to start of day for comparison
+
+            const timeDiff = todayDate.getTime() - lastDeliveryDate.getTime();
+            const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+            const formattedLastDate = lastDeliveryDate.toLocaleDateString('ar-EG-u-nu-latn');
+
+            if (dayDiff === 0) return { color: 'green', title: `طلبية اليوم: ${formattedLastDate}` };
+            if (dayDiff > 0 && dayDiff <= 6) return { color: 'yellow', title: `آخر طلبية قبل ${dayDiff} يوم/أيام (${formattedLastDate})` };
+            return { color: 'red', title: `آخر طلبية قبل ${dayDiff} أيام (${formattedLastDate})` }; // More than 6 days or in the past significantly
+        }
+
+
+        function addDriver() {
+            console.log("Attempting to add new driver..."); // Debug log
+            const rt = document.getElementById('newRt').value.trim();
+            const pNum = document.getElementById('newPermitNum').value.trim();
+            const dName = document.getElementById('newDriverName').value.trim();
+            const tNum = document.getElementById('newTruckNum').value.trim();
+            if (!rt || !pNum || !dName || !tNum) {
+                showMessage("رت، رقم التصريح، اسم السائق، ورقم الشاحنة إلزامية.", "error");
+                console.warn("Add driver failed: Missing required fields."); // Debug warn
+                return;
+            }
+            const newDriver = {
+                id: generateUniqueId(), rt, permitNum: pNum, driverName: dName, truckNum: tNum,
+                phoneNumber: document.getElementById('newPhoneNumber').value.trim(),
+                truckType: document.getElementById('newTruckType').value.trim(),
+                truckColor: document.getElementById('newTruckColor').value.trim(),
+                productType: document.getElementById('newProductType').value.trim(),
+                status: document.getElementById('newStatus').value.trim(),
+                issueDate: document.getElementById('newIssueDate').value.trim(),
+                expiryDate: document.getElementById('newExpiryDate').value.trim(),
+                trailerNum: document.getElementById('newTrailerNum').value.trim()
+            };
+            drivers.push(newDriver);
+            saveData(); renderDriversTable(); updateDriverStatusSummary(); showMessage("تمت إضافة سائق جديد.", "success");
+            console.log("New driver added:", newDriver); // Debug log
+            ['newRt', 'newPermitNum', 'newDriverName', 'newPhoneNumber', 'newTruckNum', 'newTruckType', 'newTruckColor', 'newProductType', 'newStatus', 'newIssueDate', 'newExpiryDate', 'newTrailerNum'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        function renderDriversTable() {
+            console.log("Rendering drivers table..."); // Debug log
+            const tb = document.getElementById('driversTableBody');
+            const st = document.getElementById('searchInput').value.toLowerCase();
+            tb.innerHTML = '';
+            const today = new Date(); today.setHours(0,0,0,0);
+            const fd = drivers.filter(d => Object.values(d).some(v => String(v).toLowerCase().includes(st)));
+            if (fd.length === 0) {
+                const r = tb.insertRow(); const c = r.insertCell(); c.colSpan = 14; c.textContent = 'لا يوجد سائقون.'; c.className = 'text-center py-4';
+                console.log("No drivers found matching search term."); // Debug log
+                return;
+            }
+            fd.forEach(d => {
+                const r = tb.insertRow();
+                const sc = r.insertCell(); const ds = getDriverDeliveryIndicator(d.id, today);
+                sc.innerHTML = `<span class="status-dot status-${ds.color}" title="${ds.title}"></span>`;
+                r.insertCell().textContent = d.rt; r.insertCell().textContent = d.permitNum; r.insertCell().textContent = d.driverName;
+                const pc = r.insertCell();
+                let dpn = d.phoneNumber || 'غير محدد';
+                if (d.phoneNumber && d.phoneNumber.trim() !== "") {
+                    let on = d.phoneNumber.trim(); let wn = ''; let tln = '';
+                    if (on.startsWith("09")) { const np = on.substring(1); dpn = "+218 " + np; wn = "218" + np; tln = "+218" + np; }
+                    else { dpn = on; wn = on.replace(/\D/g, ''); if (on.startsWith("+")) { tln = on; } else { tln = /^\d+$/.test(on.replace(/\s/g, '')) ? `+${on.replace(/\s/g, '')}` : on; }}
+                    pc.innerHTML = `<div class="flex items-center justify-end space-x-2"><span>${dpn}</span><a href="https://wa.me/${wn}" target="_blank" class="icon-btn whatsapp" title="واتساب"><i class="fab fa-whatsapp"></i></a><a href="tel:${tln}" class="icon-btn phone" title="اتصال"><i class="fas fa-phone"></i></a></div>`;
+                } else { pc.innerHTML = `<div class="flex items-center justify-end space-x-2"><span>غير محدد</span></div>`; }
+                r.insertCell().textContent = d.truckNum; r.insertCell().textContent = d.truckType || '-'; r.insertCell().textContent = d.truckColor || '-';
+                r.insertCell().textContent = d.productType || '-'; r.insertCell().textContent = d.status || '-';
+                r.insertCell().textContent = d.issueDate || '-'; r.insertCell().textContent = d.expiryDate || '-'; r.insertCell().textContent = d.trailerNum || '-';
+                const ac = r.insertCell(); ac.className = 'flex items-center justify-end space-x-1 md:space-x-2';
+                ac.innerHTML = `
+                    <button onclick="openEditDriverModal('${d.id}')" class="icon-btn text-yellow-500" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteDriver('${d.id}')" class="icon-btn text-red-500" title="حذف"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="openLogDeliveryModal('${d.id}')" class="icon-btn text-green-500" title="تسجيل توصيل"><i class="fas fa-truck-loading"></i></button>
+                    <button onclick="viewDriverReport('${d.id}')" class="icon-btn text-purple-500" title="عرض الكشف"><i class="fas fa-history"></i></button>`;
+            });
+             console.log(`Drivers table rendered with ${fd.length} drivers.`); // Debug log
+        }
+        function openEditDriverModal(id) {
+            console.log("Attempting to open edit driver modal for ID:", id); // Debug log
+            const d = drivers.find(drv => drv.id === id);
+            if (!d) {
+                showMessage("لم يتم العثور على السائق.", "error");
+                console.error("Driver not found for editing, ID:", id); // Debug error
+                return;
+            }
+            document.getElementById('editDriverId').value = d.id;
+            ['Rt', 'PermitNum', 'DriverName', 'PhoneNumber', 'TruckNum', 'TruckType', 'TruckColor', 'ProductType', 'Status', 'IssueDate', 'ExpiryDate', 'TrailerNum'].forEach(f => {
+                document.getElementById(`edit${f}`).value = d[f.charAt(0).toLowerCase() + f.slice(1)] || '';
+            });
+            openModal('editDriverModal');
+            console.log("Edit driver modal opened for driver:", d); // Debug log
+        }
+        function saveDriverChanges() {
+            console.log("Attempting to save driver changes..."); // Debug log
+            const id = document.getElementById('editDriverId').value;
+            console.log("Driver ID from modal:", id); // Debug log
+            const ud = { id };
+            ['Rt', 'PermitNum', 'DriverName', 'PhoneNumber', 'TruckNum', 'TruckType', 'TruckColor', 'ProductType', 'Status', 'IssueDate', 'ExpiryDate', 'TrailerNum'].forEach(f => {
+                ud[f.charAt(0).toLowerCase() + f.slice(1)] = document.getElementById(`edit${f}`).value.trim();
+            });
+            if (!ud.rt || !ud.permitNum || !ud.driverName || !ud.truckNum) {
+                showMessage("رت، رقم التصريح، اسم السائق، ورقم الشاحنة إلزامية.", "error");
+                console.warn("Save driver changes failed: Missing required fields."); // Debug warn
+                return;
+            }
+            const idx = drivers.findIndex(d => d.id === id);
+            if (idx > -1) {
+                drivers[idx] = ud;
+                saveData(); renderDriversTable(); updateDriverStatusSummary(); closeModal('editDriverModal');
+                showMessage("تم حفظ تغييرات السائق.", "success");
+                console.log("Driver changes saved for ID:", id); // Debug log
+            } else {
+                 showMessage("خطأ في حفظ التغييرات: لم يتم العثور على السائق.", "error");
+                 console.error("Driver not found for saving changes, ID:", id); // Debug error
+            }
+        }
+        function deleteDriver(id) {
+            console.log("Attempting to delete driver with ID:", id); // Debug log
+            if (confirm("هل أنت متأكد من حذف هذا السائق وجميع سجلاته؟")) {
+                const initialDriverCount = drivers.length;
+                const initialLogCount = deliveryLogs.length;
+                drivers = drivers.filter(d => d.id !== id);
+                deliveryLogs = deliveryLogs.filter(log => log.driverId !== id);
+                saveData(); renderDriversTable(); updateDriverStatusSummary();
+                showMessage("تم حذف السائق.", "success");
+                console.log(`Driver deleted with ID: ${id}. Drivers before: ${initialDriverCount}, after: ${drivers.length}. Logs before: ${initialLogCount}, after: ${deliveryLogs.length}.`); // Debug log
+            } else {
+                console.log("Driver deletion cancelled."); // Debug log
+            }
+        }
+        function searchDriversTable() {
+            console.log("Searching drivers table..."); // Debug log
+            renderDriversTable();
+        }
+        // --- END: Driver Functions ---
+
+        // --- START: Delivery Log Functions ---
+        function renderStationsForSelection() {
+            console.log("Rendering stations for selection..."); // Debug log
+            const companyFilterValue = document.getElementById('filterCompanyForDelivery').value;
+            const searchTerm = document.getElementById('searchStationForSelectionInput').value.toLowerCase();
+            const container = document.getElementById('stationsForSelectionContainer');
+            const selectedStationIdInput = document.getElementById('selectedStationIdForDelivery');
+            container.innerHTML = '';
+
+            if (companyFilterValue === "" || (companyFilterValue === "all" && !searchTerm.trim())) {
+                container.innerHTML = '<p class="text-slate-500 text-center py-2">الرجاء اختيار شركة أو ابدأ البحث لعرض المحطات.</p>';
+                selectedStationIdInput.value = "";
+                console.log("Stations for selection: No filter/search applied."); // Debug log
+                return;
+            }
+
+            let stationsToDisplay = fuelStations;
+
+            if (companyFilterValue !== 'all' && companyFilterValue !== "other_companies") {
+                stationsToDisplay = stationsToDisplay.filter(station => station.company === companyFilterValue);
+            } else if (companyFilterValue === "other_companies") {
+                const mainCompanies = [STATION_COMPANIES.SHARARA, STATION_COMPANIES.HIGHWAYS, STATION_COMPANIES.BREGA];
+                stationsToDisplay = stationsToDisplay.filter(station => !mainCompanies.includes(station.company));
+            }
+
+            if (searchTerm.trim()) {
+                stationsToDisplay = stationsToDisplay.filter(station =>
+                    station.name.toLowerCase().includes(searchTerm) ||
+                    (station.number && station.number.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (stationsToDisplay.length === 0) {
+                container.innerHTML = '<p class="text-slate-500 text-center py-2">لا توجد محطات تطابق بحثك.</p>';
+                selectedStationIdInput.value = "";
+                console.log("Stations for selection: No stations found for filter/search."); // Debug log
+                return;
+            }
+
+            const ul = document.createElement('ul');
+            stationsToDisplay.forEach(station => {
+                const li = document.createElement('li');
+                li.textContent = `${station.name} (${station.company || 'غير محدد'}) - رقم: ${station.number || 'N/A'}`;
+                li.dataset.stationId = station.id;
+                if (station.id === selectedStationIdForDelivery.value) {
+                    li.classList.add('selected');
+                }
+                li.onclick = function() {
+                    selectedStationIdForDelivery.value = this.dataset.stationId;
+                    Array.from(ul.children).forEach(child => child.classList.remove('selected'));
+                    this.classList.add('selected');
+                    console.log("Station selected for delivery:", station); // Debug log
+                };
+                ul.appendChild(li);
+            });
+            container.appendChild(ul);
+            console.log(`Stations for selection rendered: ${stationsToDisplay.length} stations.`); // Debug log
+        }
+
+
+        document.getElementById('deliveryFuelQuantity').addEventListener('change', function() {
+            document.getElementById('customFuelQuantity').classList.toggle('hidden', this.value !== 'custom');
+             console.log("Delivery quantity selector changed to:", this.value); // Debug log
+        });
+         document.getElementById('editDeliveryFuelQuantity').addEventListener('change', function() {
+            document.getElementById('editCustomFuelQuantity').classList.toggle('hidden', this.value !== 'custom');
+             console.log("Edit delivery quantity selector changed to:", this.value); // Debug log
+        });
+
+        function openLogDeliveryModal(driverId) {
+            console.log("Attempting to open log delivery modal for driverId:", driverId); // Debug log
+            const driver = drivers.find(d => d.id === driverId);
+            if (!driver) {
+                console.error("Driver not found for ID:", driverId); // Debug error
+                showMessage("لم يتم العثور على السائق.", "error");
+                return;
+            }
+            console.log("Driver found:", driver); // Debug log
+            document.getElementById('logDeliveryDriverId').value = driver.id;
+            document.getElementById('logDeliveryDriverNameDisplay').value = driver.driverName;
+            document.getElementById('filterCompanyForDelivery').value = 'all';
+            document.getElementById('searchStationForSelectionInput').value = '';
+            document.getElementById('selectedStationIdForDelivery').value = '';
+            renderStationsForSelection();
+
+            document.getElementById('deliveryNotificationNumber').value = '';
+            document.getElementById('deliveryDate').valueAsDate = new Date();
+            document.getElementById('deliveryFuelType').value = 'بنزين';
+            document.getElementById('deliveryFuelQuantity').value = '40000';
+            document.getElementById('customFuelQuantity').value = '';
+            document.getElementById('customFuelQuantity').classList.add('hidden');
+            openModal('logDeliveryModal');
+            console.log("Log delivery modal opened."); // Debug log
+        }
+
+        function saveDeliveryLog() {
+            console.log("Attempting to save delivery log..."); // Debug log
+            const driverId = document.getElementById('logDeliveryDriverId').value;
+            const stationId = document.getElementById('selectedStationIdForDelivery').value;
+            const notificationNumber = document.getElementById('deliveryNotificationNumber').value.trim();
+            const date = document.getElementById('deliveryDate').value;
+            const fuelType = document.getElementById('deliveryFuelType').value;
+            let quantity;
+            const quantitySelector = document.getElementById('deliveryFuelQuantity');
+            if (quantitySelector.value === 'custom') {
+                quantity = parseInt(document.getElementById('customFuelQuantity').value, 10);
+            } else {
+                quantity = parseInt(quantitySelector.value, 10);
+            }
+
+            console.log("Delivery log data:", { driverId, stationId, date, fuelType, quantity, notificationNumber }); // Debug log
+
+            if (!driverId || !stationId || !date || !fuelType || !quantity || isNaN(quantity) || quantity <= 0) {
+                showMessage("يرجى ملء جميع الحقول واختيار محطة والتأكد من الكمية.", "error");
+                console.warn("Save delivery log failed: Missing/invalid fields."); // Debug warn
+                return;
+            }
+            if (!stationId) {
+                showMessage("يرجى اختيار محطة من القائمة.", "error");
+                console.warn("Save delivery log failed: No station selected."); // Debug warn
+                return;
+            }
+
+            const newLog = { id: generateUniqueId(), driverId, stationId, date, fuelType, quantity, notificationNumber };
+            deliveryLogs.push(newLog);
+            saveData(); renderDriversTable(); updateDriverStatusSummary(); showMessage("تم تسجيل التوصيل بنجاح.", "success"); closeModal('logDeliveryModal');
+            console.log("Delivery log saved:", newLog); // Debug log
+
+            // Refresh report if currently open
+            if (document.getElementById('stationReportModal').classList.contains('active')) {
+                 const csId = document.getElementById('currentStationReportId').value; if(csId) viewStationReport(csId);
+            }
+            if (document.getElementById('driverReportModal').classList.contains('active')) {
+                 const cdId = document.getElementById('currentDriverReportId').value; if(cdId) viewDriverReport(cdId);
+            }
+        }
+
+        function openEditDeliveryLogModal(logId) {
+            console.log("Attempting to open edit delivery log modal for ID:", logId); // Debug log
+            const log = deliveryLogs.find(l => l.id === logId);
+            if (!log) {
+                showMessage("لم يتم العثور على سجل التوصيل.", "error");
+                console.error("Delivery log not found for editing, ID:", logId); // Debug error
+                return;
+            }
+            console.log("Delivery log found:", log); // Debug log
+            const driver = drivers.find(d => d.id === log.driverId);
+            document.getElementById('editDeliveryLogId').value = log.id;
+            document.getElementById('editDeliveryLogDriverNameDisplay').value = driver ? driver.driverName : 'سائق غير معروف';
+            const editStationSelect = document.getElementById('editSelectStationForDelivery');
+            editStationSelect.innerHTML = '';
+            fuelStations.forEach(s => {
+                const opt = document.createElement('option'); opt.value = s.id; opt.textContent = `${s.name} (${s.company || 'غير محدد'})`; editStationSelect.appendChild(opt);
+            });
+            editStationSelect.value = log.stationId;
+            document.getElementById('editDeliveryNotificationNumber').value = log.notificationNumber || "";
+            document.getElementById('editDeliveryDate').value = log.date;
+            document.getElementById('editDeliveryFuelType').value = log.fuelType;
+            const qSel = document.getElementById('editDeliveryFuelQuantity');
+            const cqi = document.getElementById('editCustomFuelQuantity');
+            if (["40000", "50000"].includes(String(log.quantity))) {
+                qSel.value = String(log.quantity); cqi.classList.add('hidden'); cqi.value = '';
+            } else { qSel.value = 'custom'; cqi.value = log.quantity; cqi.classList.remove('hidden'); }
+            openModal('editDeliveryLogModal');
+            console.log("Edit delivery log modal opened for log:", log); // Debug log
+        }
+
+        function saveDeliveryLogChanges() {
+            console.log("Attempting to save delivery log changes..."); // Debug log
+            const logId = document.getElementById('editDeliveryLogId').value;
+            console.log("Delivery log ID from modal:", logId); // Debug log
+            const stationId = document.getElementById('editSelectStationForDelivery').value;
+            const notificationNumber = document.getElementById('editDeliveryNotificationNumber').value.trim();
+            const date = document.getElementById('editDeliveryDate').value;
+            const fuelType = document.getElementById('editDeliveryFuelType').value;
+            let quantity;
+            const qSel = document.getElementById('editDeliveryFuelQuantity');
+            if (qSel.value === 'custom') { quantity = parseInt(document.getElementById('editCustomFuelQuantity').value, 10); }
+            else { quantity = parseInt(qSel.value, 10); }
+
+            console.log("Updated delivery log data:", { logId, stationId, date, fuelType, quantity, notificationNumber }); // Debug log
+
+            if (!stationId || !date || !fuelType || !quantity || isNaN(quantity) || quantity <= 0) {
+                showMessage("يرجى ملء جميع حقول التعديل بشكل صحيح.", "error");
+                 console.warn("Save delivery log changes failed: Missing/invalid fields."); // Debug warn
+                 return;
+            }
+            const idx = deliveryLogs.findIndex(l => l.id === logId);
+            if (idx > -1) {
+                deliveryLogs[idx] = { ...deliveryLogs[idx], stationId, date, fuelType, quantity, notificationNumber };
+                saveData(); renderDriversTable(); updateDriverStatusSummary(); showMessage("تم حفظ تعديلات التوصيل.", "success"); closeModal('editDeliveryLogModal');
+                 console.log("Delivery log changes saved for ID:", logId); // Debug log
+                if (document.getElementById('stationReportModal').classList.contains('active')) {
+                    const csId = document.getElementById('currentStationReportId').value; if(csId) viewStationReport(csId);
+                }
+                if (document.getElementById('driverReportModal').classList.contains('active')) {
+                    const cdId = document.getElementById('currentDriverReportId').value; if(cdId) viewDriverReport(cdId);
+                }
+            } else {
+                showMessage("خطأ: لم يتم العثور على السجل للتعديل.", "error");
+                console.error("Delivery log not found for saving changes, ID:", logId); // Debug error
+            }
+        }
+
+        function deleteDeliveryLog(logId, reportTypeToRefresh = null, idToRefresh = null) {
+            console.log("Attempting to delete delivery log with ID:", logId); // Debug log
+            if (confirm("هل أنت متأكد من حذف سجل التوصيل هذا؟")) {
+                const initialLogCount = deliveryLogs.length;
+                deliveryLogs = deliveryLogs.filter(log => log.id !== logId);
+                saveData(); renderDriversTable(); updateDriverStatusSummary(); showMessage("تم حذف سجل التوصيل.", "success");
+                console.log(`Delivery log deleted with ID: ${logId}. Logs before: ${initialLogCount}, after: ${deliveryLogs.length}.`); // Debug log
+                if (reportTypeToRefresh === 'station' && idToRefresh) viewStationReport(idToRefresh);
+                else if (reportTypeToRefresh === 'driver' && idToRefresh) viewDriverReport(idToRefresh);
+            } else {
+                console.log("Delivery log deletion cancelled."); // Debug log
+            }
+        }
+        // --- END: Delivery Log Functions ---
+
+        // --- START: Station Report Functions ---
+        function viewStationReport(stationId) {
+            console.log("Attempting to view station report for ID:", stationId); // Debug log
+            const station = fuelStations.find(s => s.id === stationId);
+            if (!station) {
+                showMessage("لم يتم العثور على المحطة.", "error");
+                console.error("Station not found for reporting, ID:", stationId); // Debug error
+                return;
+            }
+            console.log("Station found for report:", station); // Debug log
+            document.getElementById('currentStationReportId').value = stationId;
+            document.getElementById('stationReportModalTitle').textContent = `كشف محطة: ${station.name} (${station.company})`;
+            const rtb = document.getElementById('stationReportTableBody'); rtb.innerHTML = '';
+            const sds = deliveryLogs.filter(log => log.stationId === stationId).sort((a,b) => new Date(b.date) - new Date(a.date));
+            if (sds.length === 0) {
+                const r = rtb.insertRow(); const c = r.insertCell(); c.colSpan = 9; c.textContent = 'لا توجد توصيلات لهذه المحطة.'; c.className = 'text-center py-4';
+                document.getElementById('printStationReportBtn').onclick = () => printStationReport(stationId); openModal('stationReportModal');
+                console.log("No delivery logs found for station report."); // Debug log
+                return;
+            }
+            sds.forEach(log => {
+                const d = drivers.find(drv => drv.id === log.driverId); const r = rtb.insertRow();
+                r.insertCell().textContent = d ? d.driverName : '-'; r.insertCell().textContent = d ? (d.phoneNumber || '-') : '-';
+                r.insertCell().textContent = d ? d.truckNum : '-'; r.insertCell().textContent = d ? (d.trailerNum || '-') : '-';
+                r.insertCell().textContent = new Date(log.date).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+                r.insertCell().textContent = log.notificationNumber || '-'; r.insertCell().textContent = log.fuelType;
+                r.insertCell().textContent = log.quantity.toLocaleString('ar-EG-u-nu-latn');
+                const ac = r.insertCell(); ac.className = 'flex items-center justify-end space-x-1';
+                ac.innerHTML = `<button onclick="openEditDeliveryLogModal('${log.id}')" class="icon-btn text-yellow-500" title="تعديل"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteDeliveryLog('${log.id}', 'station', '${stationId}')" class="icon-btn text-red-500" title="حذف"><i class="fas fa-trash-alt"></i></button>`;
+            });
+            document.getElementById('printStationReportBtn').onclick = () => printStationReport(stationId); openModal('stationReportModal');
+            console.log(`Station report rendered with ${sds.length} logs.`); // Debug log
+        }
+
+        function printStationReport(stationId) {
+            console.log("Attempting to print station report for ID:", stationId); // Debug log
+            const station = fuelStations.find(s => s.id === stationId); if (!station) { console.error("Station not found for printing, ID:", stationId); return; }
+            const tableClone = document.getElementById('stationReportContent').querySelector('table').cloneNode(true);
+            const headers = tableClone.querySelectorAll('thead th'); const rows = tableClone.querySelectorAll('tbody tr');
+            if (headers.length > 0) headers[headers.length -1].remove(); rows.forEach(r => { if(r.cells.length > 0) r.cells[r.cells.length -1].remove(); });
+            const companyName = "شركة الأسطول للنقل"; const reportDate = new Date().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+            const pw = window.open('', '', 'height=800,width=1000');
+            pw.document.write('<html><head><title>كشف محطة</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:"Cairo",sans-serif;direction:rtl;margin:20px;color:#333}.print-header{margin-bottom:20px;text-align:center}h1{font-size:18pt;margin-bottom:5px;color:#1e3a8a}h2{font-size:16pt;margin-bottom:15px;color:#1e3a8a}table{width:100%;border-collapse:collapse;margin-top:15px;font-size:10pt}th,td{border:1px solid #ccc;padding:8px 10px;text-align:right}th{background-color:#f0f0f0;font-weight:600}.print-footer{margin-top:30px;text-align:center;font-size:9pt;color:#777}@media print{body{margin:1cm}.no-print{display:none}table{font-size:9pt}th,td{padding:5px 8px}}</style></head><body>');
+            pw.document.write(`<div class="print-header"><h1>${companyName}</h1><h2>كشف محطة: ${station.name} (${station.company})</h2></div>`);
+            pw.document.write(tableClone.outerHTML);
+            pw.document.write(`<div class="print-footer">تاريخ الطباعة: ${reportDate}</div></body></html>`);
+            pw.document.close(); pw.print();
+            console.log("Station report printed."); // Debug log
+        }
+        // --- END: Station Report Functions ---
+
+        // --- START: Periodic Report Functions ---
+        function toggleWeekSelector() {
+            console.log("Toggling week selector..."); // Debug log
+            const rt = document.getElementById('reportType').value; const wsd = document.getElementById('weekSelectorDiv');
+            const ml = document.querySelector('label[for="reportMonth"]');
+            if (rt === 'weekly') { wsd.classList.remove('hidden'); if (ml) ml.textContent = "الشهر (لاختيار أسابيع منه):"; populateWeekDropdown(); console.log("Week selector shown."); }
+            else { wsd.classList.add('hidden'); if (ml) ml.textContent = "الشهر:"; console.log("Week selector hidden."); }
+        }
+        function populateWeekDropdown() {
+            console.log("Populating week dropdown..."); // Debug log
+            const m = parseInt(document.getElementById('reportMonth').value); const y = parseInt(document.getElementById('reportYear').value);
+            const ws = document.getElementById('reportWeek'); ws.innerHTML = ''; if (isNaN(m) || isNaN(y)) { console.warn("Invalid month or year for week dropdown."); return; }
+            let date = new Date(y, m, 1); let wn = 1;
+            while (date.getMonth() === m) {
+                const wStart = new Date(date); let dow = wStart.getDay(); wStart.setDate(wStart.getDate() - dow);
+                if (wStart.getMonth() !== m) { wStart.setDate(1); wStart.setMonth(m); wStart.setFullYear(y); }
+                const wEnd = new Date(wStart); wEnd.setDate(wStart.getDate() + 6);
+                if (wEnd.getMonth() !== m) { wEnd.setDate(new Date(y, m + 1, 0).getDate()); wEnd.setMonth(m); wEnd.setFullYear(y); }
+                const opt = document.createElement('option');
+                opt.value = `${wStart.toISOString().split('T')[0]}_${wEnd.toISOString().split('T')[0]}`;
+                opt.textContent = `الأسبوع ${wn} (من ${wStart.toLocaleDateString('ar-EG-u-nu-latn',{day:'numeric'})} إلى ${wEnd.toLocaleDateString('ar-EG-u-nu-latn',{day:'numeric',month:'short'})})`;
+                ws.appendChild(opt); date.setDate(wEnd.getDate() + 1); wn++;
+            }
+             console.log("Week dropdown populated."); // Debug log
+        }
+        function populateMonthYearDropdowns() {
+            console.log("Populating month/year dropdowns..."); // Debug log
+            const ms = document.getElementById('reportMonth'); const ys = document.getElementById('reportYear');
+            const cy = new Date().getFullYear(); const cm = new Date().getMonth();
+            const months = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+            ms.innerHTML = ''; months.forEach((m, i) => { const o=document.createElement('option');o.value=i;o.textContent=m;if(i===cm)o.selected=true;ms.appendChild(o);});
+            ys.innerHTML = ''; for(let i=cy+1;i>=cy-5;i--){const o=document.createElement('option');o.value=i;o.textContent=i;if(i===cy)o.selected=true;ys.appendChild(o);}
+            ms.onchange = () => { if (document.getElementById('reportType').value === 'weekly') populateWeekDropdown(); };
+            ys.onchange = () => { if (document.getElementById('reportType').value === 'weekly') populateWeekDropdown(); };
+             console.log("Month/year dropdowns populated."); // Debug log
+        }
+        function openMonthlyReportSettingsModal() {
+            console.log("Opening monthly report settings modal..."); // Debug log
+            populateMonthYearDropdowns(); document.getElementById('reportType').value = 'monthly';
+            document.getElementById('reportCompanyFilter').value = 'all'; document.getElementById('periodicReportContentArea').innerHTML = '';
+            document.getElementById('printPeriodicReportBtn').disabled = true; toggleWeekSelector(); openModal('monthlyReportSettingsModal');
+             console.log("Monthly report settings modal opened."); // Debug log
+        }
+        function generateAndDisplayPeriodicReport() {
+            console.log("Generating periodic report..."); // Debug log
+            const rt = document.getElementById('reportType').value; const cf = document.getElementById('reportCompanyFilter').value;
+            const ra = document.getElementById('periodicReportContentArea'); ra.innerHTML = '';
+            const rth4 = document.createElement('h4'); rth4.className = 'text-xl font-semibold mb-4 text-center text-blue-600';
+            let fpd; let ptp;
+            if (rt === 'weekly') {
+                const wv = document.getElementById('reportWeek').value; if (!wv) { showMessage("يرجى اختيار الأسبوع.", "error"); ra.innerHTML = '<p class="text-center py-4">يرجى اختيار الأسبوع.</p>'; document.getElementById('printPeriodicReportBtn').disabled = true; console.warn("Report generation failed: No week selected."); return; }
+                const [sds, eds] = wv.split('_'); const sd = new Date(sds); sd.setHours(0,0,0,0); const ed = new Date(eds); ed.setHours(23,59,59,999);
+                fpd = deliveryLogs.filter(l => { const ld = new Date(l.date); return ld >= sd && ld <= ed; });
+                ptp = `لـ${document.getElementById('reportWeek').options[document.getElementById('reportWeek').selectedIndex].text.replace("الأسبوع ","اسبوع ")}`;
+                rth4.textContent = `الكشف الأسبوعي ${ptp}`;
+                 console.log(`Generating weekly report for week: ${wv}`); // Debug log
+            } else {
+                const sm = parseInt(document.getElementById('reportMonth').value); const sy = parseInt(document.getElementById('reportYear').value);
+                fpd = deliveryLogs.filter(l => { const ld = new Date(l.date); return ld.getFullYear() === sy && ld.getMonth() === sm; });
+                const mn = document.getElementById('reportMonth').options[document.getElementById('reportMonth').selectedIndex].text;
+                ptp = `لشهر ${mn} ${sy}`; rth4.textContent = `الكشف الشهري - ${mn} ${sy}`;
+                 console.log(`Generating monthly report for month ${sm+1}, year ${sy}`); // Debug log
+            }
+            ra.appendChild(rth4);
+            if (cf !== 'all') { const fn = document.createElement('p'); fn.textContent = `شركة: ${cf}`; fn.className = 'text-md mb-3 text-center'; ra.appendChild(fn); console.log(`Filtering report by company: ${cf}`); }
+            const tbl = document.createElement('table'); tbl.className = 'min-w-full bg-white border';
+            const thd = tbl.createTHead(); const hr = thd.insertRow();
+            ["المحطة", "الشركة", "التوصيلات", "بنزين(لتر)", "ديزل(لتر)", "الإجمالي(لتر)"].forEach(t => { const th = document.createElement('th'); th.textContent = t; th.className = 'p-3 border-b bg-slate-100'; hr.appendChild(th); });
+            const tbd = tbl.createTBody(); let gtd=0, gtp=0, gtdsl=0, gtol=0;
+            const str = fuelStations.filter(s => cf === 'all' || s.company === cf);
+            if (str.length === 0 && cf !== 'all') { ra.innerHTML += '<p class="text-center py-4">لا توجد محطات للفلتر.</p>'; document.getElementById('printPeriodicReportBtn').disabled = true; console.log("No stations found for company filter."); return; }
+            let fdr = false;
+            str.forEach(s => {
+                const ssd = fpd.filter(l => l.stationId === s.id);
+                if (ssd.length > 0) {
+                    fdr = true; const r = tbd.insertRow(); r.insertCell().textContent = s.name; r.insertCell().textContent = s.company;
+                    const nd = ssd.length; r.insertCell().textContent = nd.toLocaleString('ar-EG-u-nu-latn'); gtd += nd;
+                    const pq = ssd.filter(l=>l.fuelType==='بنزين').reduce((sm,l)=>sm+l.quantity,0); r.insertCell().textContent=pq.toLocaleString('ar-EG-u-nu-latn'); gtp+=pq;
+                    const dq = ssd.filter(l=>l.fuelType==='ديزل').reduce((sm,l)=>sm+l.quantity,0); r.insertCell().textContent=dq.toLocaleString('ar-EG-u-nu-latn'); gtdsl+=dq;
+                    const tq = pq + dq; r.insertCell().textContent = tq.toLocaleString('ar-EG-u-nu-latn'); gtol += tq;
+                }
+            });
+            if (!fdr) { const r=tbd.insertRow();const c=r.insertCell();c.colSpan=6;c.className='text-center p-4';c.textContent='لا توجد توصيلات للفترة/الفلتر.';ra.appendChild(tbl);document.getElementById('printPeriodicReportBtn').disabled=true;console.log("No delivery logs found for the selected period/filter."); return;}
+            const tft = tbl.createTFoot(); const fr = tft.insertRow(); fr.className = 'bg-slate-200 font-bold';
+            const tc1 = fr.insertCell(); tc1.textContent = "الإجمالي العام"; tc1.colSpan = 2;
+            fr.insertCell().textContent=gtd.toLocaleString('ar-EG-u-nu-latn'); fr.insertCell().textContent=gtp.toLocaleString('ar-EG-u-nu-latn');
+            fr.insertCell().textContent=gtdsl.toLocaleString('ar-EG-u-nu-latn'); fr.insertCell().textContent=gtol.toLocaleString('ar-EG-u-nu-latn');
+            ra.appendChild(tbl); document.getElementById('printPeriodicReportBtn').disabled = false; showMessage("تم إنشاء الكشف.", "info");
+            console.log("Periodic report generated and displayed."); // Debug log
+        }
+        function printPeriodicReport() {
+            console.log("Attempting to print periodic report..."); // Debug log
+            const rc = document.getElementById('periodicReportContentArea').innerHTML; const cn = "شركة الأسطول للنقل"; const rd = new Date().toLocaleDateString('ar-EG-u-nu-latn', { year:'numeric',month:'long',day:'numeric'});
+            const pw = window.open('','','height=800,width=1000');
+            pw.document.write('<html><head><title>كشف دوري</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:"Cairo",sans-serif;direction:rtl;margin:20px;color:#333}.print-header{margin-bottom:20px;text-align:center}h1{font-size:18pt;margin-bottom:5px;color:#1e3a8a}h2{font-size:16pt;margin-bottom:15px;color:#1e3a8a}table{width:100%;border-collapse:collapse;margin-top:15px;font-size:10pt}th,td{border:1px solid #ccc;padding:8px 10px;text-align:right}th{background-color:#f0f0f0;font-weight:600}.print-footer{margin-top:30px;text-align:center;font-size:9pt;color:#777}@media print{body{margin:1cm}.no-print{display:none}table{font-size:9pt}th,td{padding:5px 8px}}</style></head><body>');
+            pw.document.write(`<div class="print-header"><h1>${cn}</h1><h2>${document.getElementById('reportType').value === 'monthly' ? 'كشف شهري' : 'كشف أسبوعي'}</h2></div>`);
+            pw.document.write(rc);
+            pw.document.write(`<div class="print-footer">تاريخ الطباعة: ${rd}</div></body></html>`);
+            pw.document.close(); pw.print();
+            console.log("Periodic report printed."); // Debug log
+        }
+        // --- END: Periodic Report Functions ---
+
+        // --- START: Driver Report Functions ---
+        function viewDriverReport(driverId) {
+            console.log("Attempting to view driver report for ID:", driverId); // Debug log
+            const driver = drivers.find(d => d.id === driverId);
+            if (!driver) {
+                showMessage("لم يتم العثور على السائق.", "error");
+                console.error("Driver not found for reporting, ID:", driverId); // Debug error
+                return;
+            }
+            console.log("Driver found for report:", driver); // Debug log
+            document.getElementById('currentDriverReportId').value = driverId;
+            document.getElementById('driverReportModalTitle').textContent = `كشف توصيلات السائق: ${driver.driverName}`;
+
+            const driverInfoArea = document.getElementById('driverInfoArea');
+            driverInfoArea.innerHTML = `
+                <p><strong>الرت:</strong> ${driver.rt}</p>
+                <p><strong>رقم التصريح:</strong> ${driver.permitNum}</p>
+                <p><strong>رقم الشاحنة:</strong> ${driver.truckNum}</p>
+                <p><strong>رقم المقطورة:</strong> ${driver.trailerNum || '-'}</p>
+                <p><strong>رقم الهاتف:</strong> ${driver.phoneNumber || '-'}</p>
+            `;
+
+            const rtb = document.getElementById('driverReportContentArea'); rtb.innerHTML = '';
+            const dls = deliveryLogs.filter(log => log.driverId === driverId).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            if (dls.length === 0) {
+                rtb.innerHTML = '<p class="text-center py-4">لا توجد توصيلات مسجلة لهذا السائق.</p>';
+                document.getElementById('printDriverReportBtn').onclick = () => printDriverReport(driverId);
+                openModal('driverReportModal');
+                console.log("No delivery logs found for driver report."); // Debug log
+                return;
+            }
+
+            const table = document.createElement('table'); table.className = 'min-w-full bg-white border';
+            const thead = table.createTHead(); const hr = thead.insertRow();
+            ["المحطة", "الشركة", "تاريخ الطلبية", "رقم الإشعار", "نوع الوقود", "الحمولة (لتر)", "إجراءات"].forEach(t => {
+                 const th = document.createElement('th'); th.textContent = t; th.className = 'p-3 border-b bg-slate-100'; hr.appendChild(th);
+            });
+            const tbody = table.createTBody();
+
+            dls.forEach(log => {
+                const station = fuelStations.find(s => s.id === log.stationId);
+                const r = tbody.insertRow();
+                r.insertCell().textContent = station ? station.name : 'محطة غير معروفة';
+                r.insertCell().textContent = station ? station.company : '-';
+                r.insertCell().textContent = new Date(log.date).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+                r.insertCell().textContent = log.notificationNumber || '-';
+                r.insertCell().textContent = log.fuelType;
+                r.insertCell().textContent = log.quantity.toLocaleString('ar-EG-u-nu-latn');
+                const ac = r.insertCell(); ac.className = 'flex items-center justify-end space-x-1';
+                 ac.innerHTML = `<button onclick="openEditDeliveryLogModal('${log.id}')" class="icon-btn text-yellow-500" title="تعديل"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteDeliveryLog('${log.id}', 'driver', '${driverId}')" class="icon-btn text-red-500" title="حذف"><i class="fas fa-trash-alt"></i></button>`;
+            });
+
+            rtb.appendChild(table);
+            document.getElementById('printDriverReportBtn').onclick = () => printDriverReport(driverId);
+            openModal('driverReportModal');
+            console.log(`Driver report rendered with ${dls.length} logs.`); // Debug log
+        }
+
+        function printDriverReport(driverId) {
+            console.log("Attempting to print driver report for ID:", driverId); // Debug log
+            const driver = drivers.find(d => d.id === driverId); if (!driver) { console.error("Driver not found for printing, ID:", driverId); return; }
+            const driverInfoHTML = document.getElementById('driverInfoArea').innerHTML;
+            const tableClone = document.getElementById('driverReportContentArea').querySelector('table').cloneNode(true);
+             const headers = tableClone.querySelectorAll('thead th'); const rows = tableClone.querySelectorAll('tbody tr');
+            if (headers.length > 0) headers[headers.length -1].remove(); rows.forEach(r => { if(r.cells.length > 0) r.cells[r.cells.length -1].remove(); });
+
+            const companyName = "شركة الأسطول للنقل";
+            const reportDate = new Date().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const pw = window.open('', '', 'height=800,width=1000');
+            pw.document.write('<html><head><title>كشف سائق</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:"Cairo",sans-serif;direction:rtl;margin:20px;color:#333}.print-header{margin-bottom:20px;text-align:center}h1{font-size:18pt;margin-bottom:5px;color:#1e3a8a}h2{font-size:16pt;margin-bottom:15px;color:#1e3a8a}table{width:100%;border-collapse:collapse;margin-top:15px;font-size:10pt}th,td{border:1px solid #ccc;padding:8px 10px;text-align:right}th{background-color:#f0f0f0;font-weight:600}.print-footer{margin-top:30px;text-align:center;font-size:9pt;color:#777}.driver-info{margin-bottom:20px;padding:10px;border:1px solid #ccc;border-radius:5px;background-color:#f9f9f9;font-size:10pt}@media print{body{margin:1cm}.no-print{display:none}table{font-size:9pt}th,td{padding:5px 8px}}</style></head><body>');
+            pw.document.write(`<div class="print-header"><h1>${companyName}</h1><h2>كشف توصيلات السائق: ${driver.driverName}</h2></div>`);
+            pw.document.write(`<div class="driver-info">${driverInfoHTML}</div>`);
+            pw.document.write(tableClone.outerHTML);
+            pw.document.write(`<div class="print-footer">تاريخ الطباعة: ${reportDate}</div></body></html>`);
+            pw.document.close();
+            pw.print();
+            console.log("Driver report printed."); // Debug log
+        }
+        // --- END: Driver Report Functions ---
+
+        // --- START: Driver Status Summary ---
+        function updateDriverStatusSummary() {
+            console.log("Updating driver status summary..."); // Debug log
+            const today = new Date(); today.setHours(0,0,0,0);
+            let greenCount = 0; let yellowCount = 0; let redCount = 0;
+
+            drivers.forEach(driver => {
+                const indicator = getDriverDeliveryIndicator(driver.id, today);
+                if (indicator.color === 'green') greenCount++;
+                else if (indicator.color === 'yellow') yellowCount++;
+                else redCount++;
+            });
+
+            document.getElementById('statusCountGreen').textContent = greenCount.toLocaleString('ar-EG-u-nu-latn');
+            document.getElementById('statusCountYellow').textContent = yellowCount.toLocaleString('ar-EG-u-nu-latn');
+            document.getElementById('statusCountRed').textContent = redCount.toLocaleString('ar-EG-u-nu-latn');
+            console.log(`Driver status summary updated: Green=${greenCount}, Yellow=${yellowCount}, Red=${redCount}`); // Debug log
+        }
+
+        function printDriverStatusReport(statusColor) {
+            console.log(`Attempting to print driver status report for color: ${statusColor}`); // Debug log
+            const today = new Date(); today.setHours(0,0,0,0);
+            const filteredDrivers = drivers.filter(driver => {
+                const indicator = getDriverDeliveryIndicator(driver.id, today);
+                return indicator.color === statusColor;
+            });
+
+            if (filteredDrivers.length === 0) {
+                showMessage("لا يوجد سائقون في هذه الفئة لطباعة التقرير.", "info");
+                console.warn(`No drivers found for status color "${statusColor}" for printing.`); // Debug warn
+                return;
+            }
+
+            let title = '';
+            if (statusColor === 'green') title = 'تقرير سائقي طلبية اليوم';
+            else if (statusColor === 'yellow') title = 'تقرير سائقي خلال 7 أيام';
+            else title = 'تقرير سائقي أكثر من 7 أيام / لا يوجد طلبيات';
+
+            const companyName = "شركة الأسطول للنقل";
+            const reportDate = new Date().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            let reportContent = `
+                <div class="print-header">
+                    <h1>${companyName}</h1>
+                    <h2>${title}</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رت</th>
+                            <th>رقم التصريح</th>
+                            <th>اسم السائق</th>
+                            <th>رقم الهاتف</th>
+                            <th>رقم الشاحنة</th>
+                            <th>نوع الشاحنة</th>
+                            <th>لون الشاحنة</th>
+                            <th>نوع المنتوج</th>
+                            <th>الحالة</th>
+                            <th>تاريخ الاصدار</th>
+                            <th>تاريخ الانتهاء</th>
+                            <th>رقم المقطورة</th>
+                            <th>حالة الطلبية</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            filteredDrivers.forEach(d => {
+                const indicator = getDriverDeliveryIndicator(d.id, today);
+                reportContent += `
+                    <tr>
+                        <td>${d.rt}</td>
+                        <td>${d.permitNum}</td>
+                        <td>${d.driverName}</td>
+                        <td>${d.phoneNumber || '-'}</td>
+                        <td>${d.truckNum}</td>
+                        <td>${d.truckType || '-'}</td>
+                        <td>${d.truckColor || '-'}</td>
+                        <td>${d.productType || '-'}</td>
+                        <td>${d.status || '-'}</td>
+                        <td>${d.issueDate || '-'}</td>
+                        <td>${d.expiryDate || '-'}</td>
+                        <td>${d.trailerNum || '-'}</td>
+                        <td>${indicator.title}</td>
+                    </tr>
+                `;
+            });
+
+            reportContent += `
+                    </tbody>
+                </table>
+                <div class="print-footer">
+                    تاريخ الطباعة: ${reportDate}
+                </div>
+            `;
+
+            const pw = window.open('', '', 'height=800,width=1000');
+            pw.document.write('<html><head><title>تقرير حالة السائقين</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:"Cairo",sans-serif;direction:rtl;margin:20px;color:#333}.print-header{margin-bottom:20px;text-align:center}h1{font-size:18pt;margin-bottom:5px;color:#1e3a8a}h2{font-size:16pt;margin-bottom:15px;color:#1e3a8a}table{width:100%;border-collapse:collapse;margin-top:15px;font-size:10pt}th,td{border:1px solid #ccc;padding:8px 10px;text-align:right}th{background-color:#f0f0f0;font-weight:600}.print-footer{margin-top:30px;text-align:center;font-size:9pt;color:#777}@media print{body{margin:1cm}.no-print{display:none}table{font-size:9pt}th,td{padding:5px 8px}}</style></head><body>');
+            pw.document.write(reportContent);
+            pw.document.close();
+            pw.print();
+            console.log(`Driver status report printed for color: ${statusColor}`); // Debug log
+        }
+        // --- END: Driver Status Summary ---
+
+
+        // --- START: Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM fully loaded. Initializing application..."); // Debug log
+            populateStationCompanyDropdowns();
+            renderFuelStationsTable();
+            renderDriversTable();
+            updateDriverStatusSummary();
+            const currentYear = new Date().getFullYear();
+            const yearSelect = document.getElementById('reportYear');
+            for (let i = currentYear + 1; i >= currentYear - 5; i--) { // Changed loop direction for years
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+            yearSelect.value = currentYear;
+            populateMonthYearDropdowns();
+             console.log("Application initialization complete."); // Debug log
+        });
+        // --- END: Initialization ---
+    </script>
+</body>
+</html>

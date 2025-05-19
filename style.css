@@ -1,0 +1,242 @@
+/*
+Theme Name: Astol Fleet Management
+Theme URI: https://yourdomain.com/
+Author: Your Name
+Author URI: https://yourdomain.com/
+Description: قالب إدارة أسطول الشركة - تحويل من HTML إلى ووردبريس
+Version: 1.0
+Text Domain: astol-fleet
+*/
+
+/* سيتم نقل جميع الأكواد المخصصة هنا لاحقاً */
+
+body {
+    font-family: 'Cairo', sans-serif;
+    background-color: #f0f4f8;
+    color: #334155;
+}
+.table-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+th, td {
+    padding: 0.75rem 1rem;
+    text-align: right;
+    border-bottom-width: 1px;
+    border-color: #e2e8f0;
+    white-space: nowrap;
+}
+th {
+    background-color: #3b82f6;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: 600;
+}
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+tr:hover {
+    background-color: #e0f2fe;
+}
+input[type="text"], input[type="date"], select, input[type="number"], input[type="search"] {
+    border: 1px solid #cbd5e1;
+    border-radius: 0.375rem;
+    padding: 0.625rem 0.875rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    width: 100%;
+    background-color: white;
+}
+input[type="text"]:focus, input[type="date"]:focus, select:focus, input[type="number"]:focus, input[type="search"]:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    outline: none;
+}
+.btn {
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+    cursor: pointer;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+}
+.btn:active {
+    transform: translateY(1px);
+}
+.btn-primary {
+    background-color: #3b82f6; color: white;
+}
+.btn-primary:hover { background-color: #2563eb; }
+.btn-danger {
+    background-color: #ef4444; color: white;
+}
+.btn-danger:hover { background-color: #dc2626; }
+.btn-success {
+    background-color: #22c55e; color: white;
+}
+.btn-success:hover { background-color: #16a34a; }
+.btn-info {
+    background-color: #0ea5e9; color: white;
+}
+.btn-info:hover { background-color: #0284c7; }
+.btn-warning {
+    background-color: #f59e0b; color: white;
+}
+.btn-warning:hover { background-color: #d97706; }
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+.table-responsive-wrapper { overflow-x: auto; }
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000; opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.modal.active { opacity: 1; visibility: visible; }
+.modal-content {
+    background-color: white; padding: 1.5rem; border-radius: 0.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    width: 90%; max-width: 600px;
+    max-height: 90vh; overflow-y: auto;
+}
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; margin-bottom: 1rem;
+}
+.modal-title { font-size: 1.5rem; font-weight: 700; color: #3b82f6; }
+.modal-close-btn {
+    background: none; border: none; font-size: 1.5rem; cursor: pointer;
+    color: #94a3b8; transition: color 0.2s ease;
+}
+.modal-close-btn:hover { color: #64748b; }
+.icon-btn {
+    background: none; border: none; cursor: pointer; font-size: 1.1rem;
+    margin: 0 0.2rem; padding: 0.2rem; color: #64748b;
+    transition: color 0.2s ease, transform 0.1s ease;
+}
+.icon-btn:hover { transform: scale(1.1); }
+.icon-btn.text-blue-500:hover { color: #2563eb !important; }
+.icon-btn.text-red-500:hover { color: #dc2626 !important; }
+.icon-btn.text-green-500:hover { color: #16a34a !important; }
+.icon-btn.text-purple-500:hover { color: #7c3aed !important; }
+.icon-btn.text-yellow-500:hover { color: #d97706 !important; }
+.icon-btn.text-teal-500:hover { color: #0d9488 !important; }
+.icon-btn.whatsapp:hover { color: #25D366 !important; }
+.icon-btn.phone:hover { color: #3b82f6 !important; }
+#messageBox {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    padding: 0.75rem 1.25rem; border-radius: 0.375rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 2000; display: none; font-size: 0.9rem; font-weight: 600;
+    align-items: center;
+}
+#messageBox.success { background-color: #22c55e; color: white; }
+#messageBox.error { background-color: #ef4444; color: white; }
+#messageBox.info { background-color: #3b82f6; color: white; }
+#messageCloseBtn {
+    background: none; border: none; color: inherit; font-size: 1.25rem;
+    margin-right: -0.5rem; margin-left: 0.75rem; cursor: pointer; line-height: 1;
+}
+#monthlyReportContentArea, #driverReportContentArea, #stationReportContent, #periodicReportContentArea, #stationsForSelectionContainer {
+    max-height: 55vh;
+    overflow-y: auto; border: 1px solid #e2e8f0;
+    border-radius: 0.375rem; padding: 0.75rem; margin-top: 0.75rem;
+}
+#stationsForSelectionContainer {
+     max-height: 180px;
+     padding: 0.5rem;
+     border: 1px solid #cbd5e1;
+     background-color: #f9fafb;
+}
+#stationsForSelectionContainer ul { list-style: none; padding: 0; margin: 0; }
+#stationsForSelectionContainer li {
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+#stationsForSelectionContainer li:last-child { border-bottom: none; }
+#stationsForSelectionContainer li:hover { background-color: #e0f2fe; }
+#stationsForSelectionContainer li.selected { background-color: #bfdbfe; font-weight: 600; color: #1e40af;}
+.section-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+.section-title {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 2px solid #3b82f6;
+}
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #718096; }
+.status-dot {
+    height: 12px; width: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+.status-green { background-color: #22c55e; }
+.status-yellow { background-color: #f59e0b; }
+.status-red { background-color: #ef4444; }
+/* New styles for status summary */
+#statusSummarySection {
+    background-color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    gap: 1rem;
+}
+.status-summary-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #f8fafc;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    min-width: 220px;
+}
+.status-summary-item .status-dot {
+    margin-right: 0.5rem;
+    margin-left: 0;
+}
+.status-summary-item span {
+    font-weight: 600;
+    color: #475569;
+}
+.status-summary-item .count {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+    color: #1e3a8a;
+}
+.status-summary-item .btn-print-status {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+    margin-right: auto;
+    background-color: #60a5fa;
+    color: white;
+}
+.status-summary-item .btn-print-status:hover {
+    background-color: #3b82f6;
+}
